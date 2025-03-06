@@ -1,6 +1,6 @@
 # My_CSharp_Study
 
-Microsoft Learn의 C# 설명서를 참고하였습니다.
+Microsoft Learn의 C# 설명서를 참고하였으며, 궁금증과 코멘트를 추가로 작성하였습니다.
 
 ## Hello World
 
