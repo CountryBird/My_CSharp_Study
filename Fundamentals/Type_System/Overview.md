@@ -76,3 +76,49 @@ public enum MyEnum2
 `enum` 타입은 기능적인 부분보다는 사용자 편의를 위한 타입입니다. FileMode.Create, FileMode.Open과 같이 가독성 향상이 목적입니다.
 
 따로 적어주지 않으면 암묵적으로 **이전 값에서 1씩 더해지며**, 값은 중복 가능합니다.
+
+# 참조 형식
+참조 형식은 System.Object에서 바로 상속되며, 변수 선언 시 해당 형식의 인스턴스 할당 또는 new로 생성하여야 합니다.
+
+값의 참조값이 할당됩니다.
+
+`interface`는 new 연산자를 통해 직접 인스턴스화 될 수 없으며, 이를 상속하는 클래스의 인스턴스가 필요합니다.
+
+```cs
+MyClass myClass = new MyClass();
+IMyInterface myInterface = myClass; // 인터페이스 자료형은 앞에 I를 넣어주는 게 권장되는 관례
+```
+
+# 리터럴 값 형식 / 제네릭 형식
+```cs
+var myInt = 0;
+var myLong = 0L; // 소문자는 숫자 1과 혼동될 경우가 있어 대문자 권장
+
+var myFloat = 0f;
+var myDouble = 0d; 
+Console.WriteLine(myInt.GetType()); // System.Int32
+Console.WriteLine(myLong.GetType()); // System.Int64
+
+Console.WriteLine(myFloat.GetType()); // System.Single (float 자료형의 전체 이름)
+Console.WriteLine(myDouble.GetType()); // System.Double
+```
+C#에서 리터럴 값을 컴파일러에서 받아오는 것이 가능한데, 이를 이용해 변수의 입력 방법을 지정할 수 있습니다.
+
+```cs
+ List<int> myIntList = new List<int>();
+ List<string> myStringList = new List<string>();
+```
+같은 클래스를 사용해도 제네릭 형식을 이용해 지정하면 사용시 이점을 볼 수 있습니다.
+
+# 컴파일 형식과 런타임 형식
+```cs
+ string myMessage1 = "Message";
+ Console.WriteLine(myMessage1.GetType()); // System.String
+
+ object myMessage2 = "Message";
+ Console.WriteLine(myMessage2.GetType()); // System.String
+
+ IEnumerable<char> myMessage3 = "Message";
+ Console.WriteLine(myMessage3.GetType()); // System.String
+```
+**컴파일 형식과 런타임 형식을 다를 수 있다는 것을 유념해야 코드가 형식과 상호 작용하는 방식을 효과적으로 이해할 수 있습니다.**
