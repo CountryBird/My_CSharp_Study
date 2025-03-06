@@ -37,3 +37,42 @@ myVar = 'a'; // 정상 실행
 myVar = true; // 에러
 ```
 단, 타입이 자동적으로 변한다는 개념이 아닌 처음 초기화만 자동으로 된다는 관점으로 보는 것이 맞습니다.
+
+# 값 형식
+값 형식은 System.Object-> System.ValueType에서 상속됩니다.
+해당 값이 직접 포함되며, 상속 불가능 합니다.
+
+`struct`와 `enum`으로 나눌 수 있습니다.
+기본 숫자 타입들은 `struct`에 속합니다.
+
+```cs
+byte b = 0xA; // 10
+```
+_※ 0x는 16진수를 의미합니다._
+
+```cs
+public struct MyStruct
+{
+    public int a, b;
+    public MyStruct(int a1,int b1)
+    {
+        a = a1;
+        b = b1;
+    }
+}
+```
+사용자가 고유하게 `struct`를 만드는 것도 가능합니다.
+
+```cs
+public enum MyEnum1
+{
+    A,B,C,D // 0,1,2,3
+}
+public enum MyEnum2
+{
+    A,B=100,C=50,D // 0, 100, 50, 51
+}
+```
+`enum` 타입은 기능적인 부분보다는 사용자 편의를 위한 타입입니다. FileMode.Create, FileMode.Open과 같이 가독성 향상이 목적입니다.
+
+따로 적어주지 않으면 암묵적으로 **이전 값에서 1씩 더해지며**, 값은 중복 가능합니다.
