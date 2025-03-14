@@ -56,3 +56,20 @@ static void MyMethod(out int i)
 MyMethod 내에서 1로 초기화를 하고 나온 상태이기 때문에 1이 출력되는 것을 확인할 수 있습니다.
 
 ## out 키워드와 무시 항목
+out 키워드로 선언된 변수는 참조의 형태로 전달되기 때문에, 무시 항목을 적용할 수 있습니다.
+```cs
+static void MyMethod(string s,out int i)
+{
+    i = 1;
+    Console.WriteLine(s);
+}
+   
+private static void Main(string[] args)
+{
+    int num;
+    MyMethod("hello",out _); // hello
+}
+```
+위와 같이 무시 항목을 적용해도 에러 없이 작동하는 것을 확인할 수 있습니다.
+
+## 독립 실행형 무시 항목
