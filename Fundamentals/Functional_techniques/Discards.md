@@ -73,3 +73,36 @@ private static void Main(string[] args)
 위와 같이 무시 항목을 적용해도 에러 없이 작동하는 것을 확인할 수 있습니다.
 
 ## 독립 실행형 무시 항목
+```cs
+public void method1(string arg)
+{
+    _ = arg ?? throw new ArgumentNullException(nameof(arg));
+}
+
+public void method2(string arg) 
+{ 
+    if(arg is null) 
+        throw new ArgumentNullException(nameof(arg));
+}
+```
+위와 같이 무시항목을 사용하여 코드를 간결하게 표현하는 것이 가능합니다.  
+(`??`은 널 병합 연산자라고 하며, 왼쪽 피연산자가(여기서 arg) null이면 오른쪽 피연산자, 그렇지 않으면 그대로 반환하는 역할을 합니다.)  
+
+이러한 방법을 이용해서, 필요 없는 값에 대한 의도적인 무시를 해서 컴파일 경고를 띄우지 않을 수 있습니다.
+
+## 유효한 식별자 _
+대개 `_`를 무시 항목의 의미로 쓰지만, 일반적인 변수처럼도 사용할 수 있습니다.
+```cs
+public void method1(int _)
+{
+    _ = 30;
+    Console.WriteLine(_);
+}
+```
+물론, 이러한 경우 하나의 변수처럼 쓰이는 모양이 되기 때문에 무시 항목의 의미로써 사용할 수는 없습니다.
+```cs
+public void method2(int _)
+{
+    var _ = 30; // 에러
+}
+```
