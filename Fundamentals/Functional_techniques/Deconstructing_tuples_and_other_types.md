@@ -64,3 +64,30 @@ Console.WriteLine(outString); // hello
 ```
 Deconstruct 기능을 하는 메서드 자체는 아무 이름을 사용해도 구현이 가능하지만,  
 메서드를 자동 호출되게 하려면 반드시 Deconstruct라는 이름을 사용해야 합니다.
+
+# 분해 확장 메서드
+위와 같이 사용자가 직접 정의한 클래스, 인터페이스, 구조체는 내부적으로 `Deconstruct`를 구현해 사용할 수 있습니다.   
+하지만, 라이브러리에 이미 정의되어 있는 클래스, 인터페이스를 분해하고자 하는 경우가 있을 수 있습니다.
+
+이러한 경우 수정이 불가능하기 때문에 기존 방법을 사용할 수 없습니다.    
+```cs
+public class MyClass
+{
+    public int myInt = 10;
+    public string myString = "hello";
+    public bool myBool = true;
+}
+```
+이러한 라이브러리의 클래스가 있다고 가정합시다. (편의를 위해 임의로 작성한 클래스이며, 이대로 내부 코드 수정이 불가능하다고 가정합니다.)  
+```cs
+ public static void Deconstruct(this MyClass myClass, out bool myBool, out int myInt)
+ {
+     myBool = myClass.myBool;
+     myInt = myClass.myInt;
+ }
+```
+최상위 문 위치에 다음과 같은 형태의 `Deconstruct`를 사용하면, MyClass의 객체를 분해해서 임의의 분해 메서드를 만들 수 있습니다.    
+`this` 키워드는 해당 클래스에 대한 확장 메서드를 작성한다의 의미 정도로 이해하면 되며, 이에 따라 분해 시에 제외됩니다. 
+
+# 시스템 형식의 확장 메서드
+`KeyValuePair`나 `Dictionary`와 같은 일부 시스템 형식은 편의를 위해 자체적으로 `Deconstruct` 메서드를 제공합니다.
