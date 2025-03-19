@@ -96,3 +96,107 @@ string myIDCode = "my"; // (O)
 
 
 # 파스칼 케이스
+첫 단어의 첫 글자를 대문자로 표기하는 규칙입니다.   
+주로 `class`, `interface`, `struct`, `delegate` 타입에 이름을 지정할 때 사용합니다.
+```cs
+public class MyClass { }
+public struct MyStruct { }
+```
+`interface`의 이름을 지정할 때는, 이름 제일 앞에 `I`를 붙이고 파스칼 케이스를 사용합니다.  
+```cs
+public interface IMyInterface { }
+```
+`public`으로 지정된 필드, 속성, 이벤트와 같은 멤버에도 파스칼 케이스를 사용합니다.
+```cs
+public class MyClass 
+{
+    public int MyInt;
+    public void MyMethod()
+    {
+
+    }
+}
+```
+위치와 관련된 `record`에는 public 속성을 파스칼 케이스를 사용합니다.
+```cs
+public record Address
+(
+    string Street,
+    string City,
+    string Province
+);
+```
+
+# 카멜 케이스
+파스칼 케이스와 비슷하지만, 첫 단어의 첫 문자는 소문자로 표기하는 규칙입니다.    
+주로 `private`,`internal` 필드의 이름을 사용하고, `_`를 접두사로 붙입니다.  
+```cs
+public class MyClass
+{
+    private int _myInt;
+}
+```
+`private`, `internal`에 `static`을 적용할 때는 `s_`를 접두사로 사용하고,   
+`[ThreadStatic]`을 사용할 때는 `t_`를 사용합니다.   
+(이 특성을 적용하면, 스레드마다 해당 변수에 대한 독립적인 필드를 가집니다. => 스레드에 따라 같은 변수도 다르게 판단할 수 있다는 의미)
+```cs
+public class MyClass
+{
+    private static int s_myInt;
+
+    [ThreadStatic]
+    private static int t_myInt;
+}
+```
+매개변수를 작성할 때도 카멜 케이스를 적용합니다.
+```cs
+ public void MyMethod(int myInt, string myString)
+ {
+
+ }
+```
+
+# 타입 매개변수 명명 지침
+타입 매개변수는 제네릭 클래스나 제네릭 메서드에서 사용되는 자리 표시자를 의미합니다.  
+이러한 타입 매개변수를 사용할 때도 몇 가지 규칙이 있습니다.
+
+## - 제네릭 타입 매개변수를 설명적인 이름으로 지을 것
+: 단일 문자 `T`로 사용해도 충분히 설명이 되는 경우가 아니면, 타입 매개변수의 이름을 설명적으로 적는 것이 좋습니다.
+```cs
+ public class Converter<T1,T2> { }; // (X)
+ public class Converter<TInput,TOutput> { }; // (O)
+```
+
+## - 타입 매개변수가 하나인 경우에는, `T`를 고려해 볼 것
+: 만약 타입 매개변수가 하나만 있는 경우에는, 관례적으로 `T`로 사용합니다.
+```cs
+static public void Speaker<T>(T t)
+{
+    Console.WriteLine(t);
+}
+```
+
+## - T를 타입 파라미터 이름의 접두사로 사용할 것
+: 일반적인 클래스의 사용 타입과 구분을 쉽게하기 위해서, 타입 파라미터 이름은 시작할 때 `T`로 사용하면 좋습니다. 
+
+## - 타입 파라미터 이름을 제약 조건과 관련 있도록 고려해 볼 것
+: 제네릭 타입 매개변수는 `where`을 사용해 조건을 걸 수 있는데, _특정 클래스나 인터페이스를 구현하는 타입_ 만 받도록 제한할 수도 있습니다.   
+이러한 경우, 타입 파라미터의 이름을 제약 조건과 관련이 있는 방향으로 정할 수 있습니다.
+```cs
+ public class User
+ {
+     int name;
+ }
+```
+위와 같이 _사용자_ 를 의미하는 클래스가 있다고 가정합시다.
+```cs
+public class UserRepositoryl<T> where T : User
+{
+    // (X)
+}
+public class UserRepository<TUser> where TUser: User
+{
+    // (O)
+}
+```
+단순히 `T`로만 정하는 것 보다는, `TUser`와 같이 관계 있는 형태로 명명해주면 코드만 보아도 직관적으로 어떤 타입을 다루는지 알아보기가 쉽습니다.
