@@ -172,3 +172,95 @@ Action의 경우, 파라미터와 반환값이 둘 다 없는 메서드를 대�
 이러한 경우 <>는 생략됩니다. 
 
 # 예외 처리
+대부분의 경우 예외 처리에서는 try-catch 문을 사용합니다.    
+하지만 예외적으로, `finally` 코드에서 `Dispose` 메서드만 사용하는 경우 `using`을 사용하여 이를 대체할 수 있습니다.   
+(`Dispose` 메서드는 자원 해제를 하는 메서드입니다. 파일, 데이터 베이스 연결, 네트워크 리소스 등 여러 분야에서 사용합니다.)    
+
+`using`은 코드 블록이 끝나면 자동으로 `Dispose()`를 호출합니다. 이는 예외가 발생해도 해당되기 때문에 finally를 통한 Dispose를 대체할 수 있습니다. 
+
+# && 및 || 연산자
+C#에서 `&&`, `||`에 대해 기본적으로 **단축 평가**를 적용합니다.   
+단축 평가란, 논리 연산자에서 조건을 평가할 때 필요 없는 조건은 평가하지 않는 방법입니다.    
+AND(&&)의 경우 앞선 조건이 false인 경우, 전체 조건이 false가 되기 때문에 이 후 조건을 평가하지 않고,    
+OR(||)의 경우 앞선 조건이 true인 경우, 전체 조건이 true가 되기 때문에 이 후 조건을 평가하지 않는 식입니다.
+
+하지만 `&`, `|`을 사용하면, 단축 평가를 하지 않기 때문에, 조건에 대해 특수한 처리가 필요할 때 사용할 수 있습니다.
+```cs
+int dividend = 10;
+int divisor = 0;
+
+if(dividend > 0 || dividend/divisor > 0) { } // 정상 실행
+
+if (dividend > 0 | dividend / divisor > 0) { } // 에러
+```
+2개의 if문은 같은 조건을 사용하고, `||`와 `|` 차이만이 있습니다.  
+단축 평가에 따라 `DivideByZeroException`을 일으키냐 아니냐를 확인할 수 있습니다.   
+
+# new 연산자
+C# 9에서 추가된 타입 추론 기능을 사용하여, 간결화된 형식의 초기화가 가능합니다. 
+```cs
+MyClass myClass1 = new MyClass();
+MyClass myClass2 = new();
+```
+추론이라는 개념 특성상, 인터페이스나 업캐스팅과 같이는 사용할 수 없습니다.
+
+객체 이니셜라이저를 사용해 객체 만들기를 더 간소화 할 수 있습니다.
+```cs
+ var myClass3 = new MyClass() { MyInt = 1, MyString = "hello" };
+
+ var myClass4 = new MyClass();
+ myClass4.MyInt = 1;
+ myClass4.MyString = "hello";
+```
+
+# 이벤트 처리
+이벤트 처리를 정의하려는 경우, 후에 제거를 못해도 무방한 메서드라면 람다 식을 사용하는 것을 고려할 수 있습니다.  
+
+# LINQ 쿼리
+LINQ는 C#에서 데이터 쿼리를 SQL 객체 지향적으로 작성할 수 있도록 도와주는 기능입니다.   
+
+- 쿼리 변수에는 의미 있는 이름을 사용합니다.
+```cs
+public class Student
+{
+    public int Age;
+    public string Name;
+}
+```
+```cs
+ Student[] students = 
+    { new Student { Age = 19, Name = "A" }, new Student { Age = 26, Name = "B" }, new Student { Age = 21, Name = "C" };
+
+var studentOver20 = from student in students
+                    where student.Age > 20
+                    select student; 
+```
+위와 같이 쿼리를 통한 변수를 작성할 때는 조건 등을 쉽게 알아볼 수 있는 이름으로 하는 것이 좋습니다.
+
+- 별칭을 사용하여 익명 형식의 속성 이름의 대/소문자를 올바르게 표시해야 합니다.
+
+- 결과 속성의 이름이 모호하면 속성 이름을 바꿉니다.
+```cs
+ public class Purchase
+ {
+     public string BuyerName;
+     public string ProductName;
+ }
+```
+쿼리의 대상이 되는 데이터에 모호한 이름이 있는 경우, 이를 명확히 해야 혼동을 피할 수 있습니다.  
+
+- 쿼리 변수의 선언에서 암시적 형식 `var`를 주로 사용합니다.
+
+- 위의 예제처럼 주로 `from`으로 시작하여 쿼리 절을 정렬합니다.
+
+- `where` 절을 다른 쿼리 절 앞에 사용하여 뒤의 쿼리 절이 더 좁아진 데이터 집합에서 작동하게 합니다.
+
+- 컬렉션 내부의 컬렉션에 접근하고자 할 때, join 절 대신 여러 개의 `from` 절을 사용하는 방법도 있습니다.
+```cs
+var scoreQuery = from student in students
+                 from score in student.Scores
+                 where score > 90
+                 select new { Last = student.LastName, score };
+```
+
+# 암시적 형식 지역 변수
