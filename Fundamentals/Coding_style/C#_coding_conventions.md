@@ -264,3 +264,9 @@ var scoreQuery = from student in students
 ```
 
 # 암시적 형식 지역 변수
+- 오른쪽의 변수 형식이 명확하면 암시적 형식을 사용할 수 있습니다.
+```cs
+var message = "10";
+int intMessage = int.Parse(message);
+```
+주로, 메서드의 결과는 명확하지 않다고, `new` 연산자 / 캐스팅과 같은 경우는 명확하다고 간주합니다.   
