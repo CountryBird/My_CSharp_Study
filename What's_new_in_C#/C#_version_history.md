@@ -236,6 +236,15 @@ Console.WriteLine(nullString); // null?
 notNullString ??= "null?";
 Console.WriteLine(notNullString); // not null
 ```
+- unmanaged 생성 타입
+: 우선 `unmanaged`란, 가비지 컬렉터의 관리 대상이 아닌 타입을 의미합니다.
+기본 자료형, 구조체, 포인터 등이 이에 속합니다.
+또한 `constructed type`. 생성 타입이란, 제네릭 타입이 특정 타입으로 채워졌을 때의 타입을 의미합니다.   
 
-- 비관리형 구성 타입
-: 
+따라서 `unmanaged constructed type`은 제네릭 타입이 구체화될 때, unmanaged로 제약이 적용되는 개념을 의미합니다.
+```cs
+struct Container<T> where T : unmanaged  // T는 반드시 unmanaged 타입이어야 함
+{
+    public T Value;
+}
+```
