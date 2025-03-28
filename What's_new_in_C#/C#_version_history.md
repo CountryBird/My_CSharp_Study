@@ -248,3 +248,26 @@ struct Container<T> where T : unmanaged  // T는 반드시 unmanaged 타입이�
     public T Value;
 }
 ```
+
+- 중첩 식의 `stackalloc` 도입
+: 기존까지 `stackalloc`은 해당 변수를 스택에 저장되도록 하는 명령어인데,      
+단독 식 형태로 사용되었어야 했고 중첩된 형식으로 사용될 수 없었지만, 해당 버전부터는 사용 가능하게 되었습니다.
+```cs
+Span<int> numbers = stackalloc int[2]; // C# 8.0 이전
+Span<int> GetNumbers() => stackalloc int[3] { 1, 2, 3 }; // C# 8.0 이후 가능
+```
+`Span`은 배열을 가리키는 뷰의 개념이라고 생각하면 되며, 스택에서 사용하기 위한 배열 개념이라 생각하면 됩니다. 
+
+- 문자열 보간 개선
+: 변수를 문자열에 포함할 수 있는 기능인 `$` 기호와, 이스케이프 문자(\)를 반복해서 적을 필요가 없게 해주는 `@` 기호를 같이 사용하려고 할 때,
+C# 8.0 버전 이전이라면 반드시 `$@` 순으로 위치했어야 합니다. 하지만 이러한 점이 해당 버전부터 개선되어 순서가 상관 없게 되었습니다.
+```cs
+string username = "User";
+string path1 = @$"C:\Users\{username}";
+string path2 = $@"C:\Users\{username}"; // 어느 순서로 적어도 무방함
+```
+
+**위의 기능들은 .NET Core 3.0에 추가된 새로운 CLR과 라이브러리를 필요로 하기 때문에,      
+상기한 기능들을 온전히 사용하려면 .NET Core 3.0 이상이 필요합니다.**
+
+# C# 9
