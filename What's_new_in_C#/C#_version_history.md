@@ -271,3 +271,32 @@ string path2 = $@"C:\Users\{username}"; // 어느 순서로 적어도 무방함
 상기한 기능들을 온전히 사용하려면 .NET Core 3.0 이상이 필요합니다.**
 
 # C# 9
+_C# 9_ 는 .NET 5와 함께 릴리스되었으며, 다음과 같은 기능이 추가 되었습니다.    
+
+- 레코드
+: 기존 클래스에서 _불변_ 과 _값 기반 비교_ 의 개념이 추가된  `record` 타입이 도입되었습니다.
+
+- init
+: 속성에서 `get`과 `set`에 이어 `init`을 지정할 수 있게 되었습니다.
+`set`과 유사한 역할을 하지만, 객체 생성 이후에는 값을 변경할 수 없다는 차이가 있습니다.
+```cs
+ public class SetClass
+ {
+     public string Name { get; set; }
+ }
+ public class InitClass
+ {
+     public string Name { get; init; }
+ }
+```
+위와 같이 값 설정을 위해 set과 init을 사용하는 클래스가 있다고 가정합시다.
+```cs
+ var setClass = new SetClass { Name = "setClass"};
+ var initClass = new InitClass() { Name = "initClass"};
+
+ setClass.Name = "new Name"; // 정상 실행
+ initClass.Name = "new Name"; // 에러
+```
+init은 객체 생성 시점에만 값을 변경할 수 있습니다.   
+
+- 최상위 
