@@ -299,4 +299,26 @@ _C# 9_ 는 .NET 5와 함께 릴리스되었으며, 다음과 같은 기능이 �
 ```
 init은 객체 생성 시점에만 값을 변경할 수 있습니다.   
 
-- 최상위 
+- 최상위 문       
+: 기본적으로 C#에서는 `static void Main(string args[])`와 같은 형태의, 일종의 프로그램의 시작점 역할을 하는 함수가 필요 했습니다.
+하지만 C# 9 이후부터는 _최상위 문_ 개념이 생겨 자체적으로 지원을 하게 되었습니다. Python 코드의 형태와 유사해졌다고 생각하면 됩니다.
+물론, 이전 스타일의 코드 작성도 여전히 가능합니다.
+```cs
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Hello, World!");
+    }
+}
+```
+```cs
+using System;
+
+Console.WriteLine("Hello, World!");
+```
+위의 두 코드는 같은 동작을 합니다.     
+
+- 
