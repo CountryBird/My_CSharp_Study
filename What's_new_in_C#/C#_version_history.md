@@ -321,4 +321,140 @@ Console.WriteLine("Hello, World!");
 ```
 위의 두 코드는 같은 동작을 합니다.     
 
-- 
+- 패턴 매칭
+: C# 9 버전부터 패턴 매칭에 대한 기능이 확장되었습니다.
+
+* 타입 패턴이 추가되어, 특정 객체가 해당 타입인지 확인할 수 있습니다.
+```cs
+int myInt = 1;
+
+if(myInt is int)
+{
+  Console.WriteLine("int"); // int
+}
+
+if(myInt is int newInt)
+{
+  Console.WriteLine(newInt); // 1
+}
+```
+위와 같이 `is` 키워드와 조합하여 간단하게 타입 검사 식을 만들 수 있습니다.  
+
+* 자연어에 가까운 논리 연산자를 사용할 수 있게 되었습니다.  
+```cs
+int myInt = 5;
+
+if(myInt is not 10)
+{
+  Console.WriteLine("not 10"); // not 10
+}
+
+if(myInt is > 0 and < 10)
+{
+  Console.WriteLine("between 0 ~ 10"); // between 0 ~ 10
+}
+
+if(myInt is 5 or 10)
+{
+  Console.WriteLine("5 or 10"); // 5 or 10
+}
+```
+보다 자연어에 가까운 방식으로 식을 설정하여, 가독성을 높일 수 있습니다.   
+
+* 모듈 이니셜라이저 개념을 이용해, 어셈블리 로드 시기에 메서드를 호출할 수 있습니다.
+```cs
+[ModuleInitializer]
+public static void Init()
+{
+  Console.WriteLine("Init");
+}
+
+public static void Main(string[] args)
+{
+  Console.WriteLine("Main");
+}
+
+// Init
+// Main
+```
+다음과 같이 따로 실행하지 않아도 자동으로 처음으로 실행되는 메서드를 설정할 수 있습니다.      
+다만, 이러한 특성 때문에 해당 메서드에는 _반환값 없음, 파라미터 없음, void, static_ 이어야 한다는 제한 사항이 있습니다.    
+
+* 한 클래스를 여러 부분에서 정의할 수 있게 해주는 `partial class`에 이어, `partial method` 개념도 사용할 수 있게 되었습니다.    
+```cs
+partial class MyPartialClass
+{
+  partial void myPartialMethod(); // 선언만
+}
+partial class MyPartialClass
+{
+  partial void myPartialMethod() // 구현까지
+  {
+    Console.WriteLine("Hello"); 
+  }
+}
+```
+다음과 같이, 메서드도 여러 부분에서 정의할 수 있게 되었습니다.    
+다만 이러한 방법을 사용할 때 주의해야 할 사항이 있습니다. (편의를 위해 선언을 한 위의 partial 클래스를 u, 구현을 한 아래의 partial 클래스를 d라고 가정하겠습니다.)     
+|경우|결과|
+|-|-|
+|u와 d 모두 있는 경우|정상 동작|
+|u만 있는 경우|정상 동작|
+|d만 있는 경우|컴파일 오류 (partial method는 선언이 반드시 필요)|
+|u와 d 모두 없는 경우|메서드 자체가 없음| 
+
+* 타겟 형식의 `new` 표현식을 사용할 수 있게 되었습니다.   
+객체를 생성할 때, 왼쪽 변수를 기반으로 하여 타입을 명시하지 않고 사용할 수 있게 되었습니다.
+```cs
+List<int> list = new();
+```
+* 익명 함수를 정적으로 선언할 수 있게 되었습니다.
+일반적인 익명 함수는 외부의 변수를 사용하기 위해 _클로저_ 라고 하는 별도의 클래스를 내부적으로 생성하는데, 이는 성능 저하를 일으킬 수 있습니다.
+하지만 정적 익명 함수를 사용하게 되면, 외부 변수에 접근할 수 없어 이러한 과정을 우려할 필요가 없습니다.
+```cs
+int x = 3;
+
+Func<int,int> func = num => num * x;
+Func<int,int> s_func = static (num) => num * x; // 에러
+```
+`static` 키워드를 붙인 익명 함수는 외부 변수를 사용할 수 없습니다.   
+
+* 타겟 형식을 조건부 식에도 사용할 수 있습니다.
+타겟 형식이 확장됨에 따라, 조건부 식에도 더 다양한 방법으로 사용할 수 있게 되었습니다.
+```cs
+public class Shape {}
+public class Circle : Shape {}
+public class Triangle : Shape {}
+public class Rectangle : Shape {}
+```
+위와 같이 클래스가 적용이 되었다고 가정하면,
+```cs
+int dot = 3;
+
+Shape shape = dot < 4 ? new Triangle() : new Rectangle(); // 캐스팅 개념
+Circle circle = dot == 0 ? new() : null // 타겟 형식 new와 null 개념
+```
+여러 가지 방법으로 조건부 식을 사용할 수 있습니다.      
+
+* 익명 식에서도 무시 항목을 사용할 수 있습니다.
+```cs
+Func<int, int, int> func = (x, _) => 0;
+```
+
+* GetEnumerator 에 대해 foreach를 사용할 수 있습니다.    
+```cs
+public static class MyClass
+{
+  public static IEnumberator<T> GetEnumerator<T>(this IEnumerator<T> enumerator) => enumerator;
+}
+```
+```cs
+IEnumerator<string> enumerator = (IEnumerator<string>)new List<string> { "A", "B", "C" };
+foreach(string item in enumerator)
+{
+  Console.WriteLine(item);
+}
+```
+* 로컬 함수에도 특성을 적용할 수 있습니다.
+
+# C# 10
