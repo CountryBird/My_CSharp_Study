@@ -324,7 +324,7 @@ Console.WriteLine("Hello, World!");
 - 패턴 매칭
 : C# 9 버전부터 패턴 매칭에 대한 기능이 확장되었습니다.
 
-* 타입 패턴이 추가되어, 특정 객체가 해당 타입인지 확인할 수 있습니다.
+- 타입 패턴이 추가되어, 특정 객체가 해당 타입인지 확인할 수 있습니다.
 ```cs
 int myInt = 1;
 
@@ -340,7 +340,7 @@ if(myInt is int newInt)
 ```
 위와 같이 `is` 키워드와 조합하여 간단하게 타입 검사 식을 만들 수 있습니다.  
 
-* 자연어에 가까운 논리 연산자를 사용할 수 있게 되었습니다.  
+- 자연어에 가까운 논리 연산자를 사용할 수 있게 되었습니다.  
 ```cs
 int myInt = 5;
 
@@ -361,7 +361,7 @@ if(myInt is 5 or 10)
 ```
 보다 자연어에 가까운 방식으로 식을 설정하여, 가독성을 높일 수 있습니다.   
 
-* 모듈 이니셜라이저 개념을 이용해, 어셈블리 로드 시기에 메서드를 호출할 수 있습니다.
+- 모듈 이니셜라이저 개념을 이용해, 어셈블리 로드 시기에 메서드를 호출할 수 있습니다.
 ```cs
 [ModuleInitializer]
 public static void Init()
@@ -380,7 +380,7 @@ public static void Main(string[] args)
 다음과 같이 따로 실행하지 않아도 자동으로 처음으로 실행되는 메서드를 설정할 수 있습니다.      
 다만, 이러한 특성 때문에 해당 메서드에는 _반환값 없음, 파라미터 없음, void, static_ 이어야 한다는 제한 사항이 있습니다.    
 
-* 한 클래스를 여러 부분에서 정의할 수 있게 해주는 `partial class`에 이어, `partial method` 개념도 사용할 수 있게 되었습니다.    
+- 한 클래스를 여러 부분에서 정의할 수 있게 해주는 `partial class`에 이어, `partial method` 개념도 사용할 수 있게 되었습니다.    
 ```cs
 partial class MyPartialClass
 {
@@ -408,7 +408,7 @@ partial class MyPartialClass
 ```cs
 List<int> list = new();
 ```
-* 익명 함수를 정적으로 선언할 수 있게 되었습니다.
+- 익명 함수를 정적으로 선언할 수 있게 되었습니다.
 일반적인 익명 함수는 외부의 변수를 사용하기 위해 _클로저_ 라고 하는 별도의 클래스를 내부적으로 생성하는데, 이는 성능 저하를 일으킬 수 있습니다.
 하지만 정적 익명 함수를 사용하게 되면, 외부 변수에 접근할 수 없어 이러한 과정을 우려할 필요가 없습니다.
 ```cs
@@ -419,7 +419,7 @@ Func<int,int> s_func = static (num) => num * x; // 에러
 ```
 `static` 키워드를 붙인 익명 함수는 외부 변수를 사용할 수 없습니다.   
 
-* 타겟 형식을 조건부 식에도 사용할 수 있습니다.
+- 타겟 형식을 조건부 식에도 사용할 수 있습니다.
 타겟 형식이 확장됨에 따라, 조건부 식에도 더 다양한 방법으로 사용할 수 있게 되었습니다.
 ```cs
 public class Shape {}
@@ -436,12 +436,12 @@ Circle circle = dot == 0 ? new() : null // 타겟 형식 new와 null 개념
 ```
 여러 가지 방법으로 조건부 식을 사용할 수 있습니다.      
 
-* 익명 식에서도 무시 항목을 사용할 수 있습니다.
+- 익명 식에서도 무시 항목을 사용할 수 있습니다.
 ```cs
 Func<int, int, int> func = (x, _) => 0;
 ```
 
-* GetEnumerator 에 대해 foreach를 사용할 수 있습니다.    
+- GetEnumerator 에 대해 foreach를 사용할 수 있습니다.    
 ```cs
 public static class MyClass
 {
@@ -455,6 +455,94 @@ foreach(string item in enumerator)
   Console.WriteLine(item);
 }
 ```
-* 로컬 함수에도 특성을 적용할 수 있습니다.
+- 로컬 함수에도 특성을 적용할 수 있습니다.
 
 # C# 10
+_C# 10_ 은 코드 간결화, 성능 향상, 유지보수성을 목표로 개선되었습니다.    
+
+- 레코드 구조체      
+: 이전까지 `class`에만 적용 가능하던 `record`의 개념을 구조체에도 적용 가능해졌습니다.
+덕분에 구조체에 대해서도, 불변성/값 기반 비교를 보장할 방법이 생겼습니다.
+```cs
+public record struct RecordStruct(int x);
+```
+
+- 구조체 생성자 개선     
+: 모든 필드에 대한 초기화가 이전까지는 필요했지만, 해당 버전부터는 매개변수 없는 생성자를 사용할 수 있게 되었습니다.
+```cs
+public struct Struct
+{
+  public int myInt;
+  public Struct(){}
+}
+```
+
+- 보간 문자열 핸들러    
+: 문자열 보간 자체는 C# 6 버전부터 지원되었었지만, 내부적으로 `string.Format()`을 호출하는 형태였기 때문에 성능 문제를 일으킬 수 있었습니다.
+하지만 C# 10 버전 이후부터는 내부적으로 적절한 핸들러를 호출하는 형태로 개선되었습니다.
+
+- global using    
+: `global using` 키워드를 사용하면, 해당 프로젝트 내에서는 반복적으로 네임스페이스를 적용할 필요가 없습니다.
+
+- 파일 범위 네임스페이스    
+: 기존까지의 `{}` 형태의 네임스페이스 선언에서 벗어나, 한 줄로 선언할 수 있게 되었습니다.
+```cs
+namespace MyNamespace // C# 10 이전
+{
+    class MyClass { }
+}
+```
+```cs
+namespace MyNamespace; // C# 10 이후
+
+class MyClass { }
+```
+
+- 확장 속성 패턴     
+: 만약 속성 패턴이 중첩되어 있는 경우, 이전까지는 `:{}`와 같은 형태를 반복적으로 적어주어야 했습니다.        
+이는 개발자의 생산성과 사용자의 가독성을 떨어뜨렸습니다.
+```cs
+public class Human
+{
+  public string Name { get; set; }
+  public Address Address { get; set; }
+}
+
+public class Address
+{
+  public string Country { get; set; }
+  public string City { get; set; }
+}
+```
+`Human` 클래스는 `Address`의 인스턴스를 속성 형태로 하여 가집니다. 
+
+```cs
+var h = new Human() { Name = "Kim", Address = new Address() };
+
+if(h is { Address : { Country : "Korea" }}) {} // C# 10 이전
+if(h is { Address.Country : "Korea" }) {} // C# 10 이후
+```
+
+- 람다 개선 사항     
+1. 람다 식 자연 타입 유추 가능      
+: 자연 타입은 컴파일러가 변수의 타입을 더 효과적으로 추론하는 것을 의미합니다.     
+이전까지는 가변 타입을 선언하고 람다 식을 사용하면 오류를 일으켰지만, 이러한 부분이 해결되었습니다.  
+```cs
+Action<string> action = (string s) => Console.WriteLine(s);
+var lambda = (string s) => Console.WriteLine(s);
+```
+해당 문제가 해결되기 전에는 `Func`, `Action`와 같은 방식을 사용해 명시적인 선언이 필요했습니다.  
+
+2. 람다 식 반환 타입 명시 가능      
+: 기존 람다 식은 반환 타입을 명시할 수 없었기 때문에, 반환 타입이 모호하거나 혼합된 경우 컴파일러가 추론을 못하는 경우가 있었습니다.      
+하지만 해당 버전부터는 `반환 타입 (파라미터) => 표현식` 형태로 적어 반환 타입 명시가 가능해졌습니다.
+```cs
+var intOrString1 = (bool flag) => flag ? 10 : "ten"; // 에러
+var intOrString2 = object (bool flag) => flag? 10 : "ten" // 정상 실행 
+```
+
+3. 람다 식 특성 적용 가능      
+: 람다 식에도 특성이 적용 가능해졌습니다.
+
+- 상수 문자열 보간 지원        
+: 
