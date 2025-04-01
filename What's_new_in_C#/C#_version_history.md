@@ -545,4 +545,28 @@ var intOrString2 = object (bool flag) => flag? 10 : "ten" // 정상 실행
 : 람다 식에도 특성이 적용 가능해졌습니다.
 
 - 상수 문자열 보간 지원        
+: `const`로 선언하는 상수 문자열에 대해서도 보간이 가능해졌습니다.
+단, 해당 문자열에 들어가는 문자열 또한 상수 문자열이어야 한다는 제한이 있습니다.
+(상수 문자열은 컴파일 시간 중 정해지기 때문에)
+```cs
+const string w = "World";
+string e = "!";
+
+string hwe = $"Hello {w} {e}"; // 정상 실행
+const string chw = $"Hello {w}"; // 정상 실행
+const string chwe = $"Hello {w} {e}"; // 에러
+```
+
+- 레코드의 ToString에 sealed 적용 가능
+: `record`의 ToString() 메서드에 `sealed`를 적용할 수 있게 되었습니다.
+때문에 ToString() 메서드가 더 이상 오버라이드되지 않음을 확신할 수 있습니다.
+```cs
+public record MyRecord
+{
+  public sealed overrride string ToString() => "MyRecord";
+}
+```
+이로써 객체가 어떻게 출력될지도 확신할 수 있기 때문에, 객체를 이용한 로그와 같은 형식에서 큰 확실성을 가집니다.      
+
+- CallerArgumentExpression 특성
 : 
