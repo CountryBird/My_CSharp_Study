@@ -578,4 +578,14 @@ public record MyRecord
 주로 코드 생성 도구나 디버깅 시나리오에서 사용합니다.     
 
 - CallerArgumentExpression 특성
-: 
+: `CallerArgumentExpression` 특성은 메서드나 파라미터로 전달된 _표현식_ 을 문자열로 가져오는 역할을 합니다.
+적용하고자 하는 파라미터에는 기본값을 필수적으로 적어주어야 합니다.   
+```cs
+public static void MyMethod(bool myBool, [CallerArgumentExpression("myBool")] string myString = null)
+{
+  Console.WriteLine(myString);
+}
+```
+```cs
+MyMethod(2 == 3); // 2 == 3
+```
