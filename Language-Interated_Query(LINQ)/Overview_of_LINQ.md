@@ -65,5 +65,18 @@ var lengthOver50 = lengths.Where(length => length >50).Select(length => length);
 
 # 데이터 소스에 대한 LINQ 쿼리 활성화 방법
 ## In-memory 데이터
+메모리 내의 데이터를 사용해 LINQ 쿼리를 사용하는 법은 크게 2가지가 있습니다.    
 
+- IEnumerable<T>를 구현하는 타입
+: List와 같은 `IEnumerable<T>`를 구현하는 타입이라면, 바로 LINQ to Objects를 사용할 수 있습니다.        
+즉, 따로 처리할 것 없이 LINQ 문법을 사용 가능하다는 의미입니다.
+
+- IEnumerable<T>를 구현하지 않는 타입
+: 표준 쿼리 연산자 메서드를 타입에 정의하거나, 확장 메서드로 구현해 주어야 합니다.       
+사실상 LINQ 문법을 모사한 메서드를 따로 만들라는 의미입니다.     
 ## 원격 데이터
+`IQueryable<T>`를 구현하는 방법을 사용할 수 있습니다.     
+해당 인터페이스는 쿼리를 원격에 전달하여 처리하는 방식입니다.     
+
+ # IQueryable LINQ 공급자
+ : 
