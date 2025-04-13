@@ -30,3 +30,32 @@ foreach (var num in numQuery)
 
 ![image](https://github.com/user-attachments/assets/9ea73bf4-daba-4f8e-84d6-690a4a375fe1)       
 **중요한 포인트는, 쿼리 선언과 쿼리 실행이 동시에 일어나지 않는다는 것입니다.**
+
+# 데이터 소스
+LINQ로 사용하는 데이터 소스는 `IEnumerable<T>`를 지원하는 형태입니다.      
+쿼리가 `foreach`문에서 실행되고, `foreach`문은 `IEnumerable` 또는 `IEnumerable<T>`이 필요합니다.      
+`IEnmerable<T>` 또는 `IQueryable<T>` 같은 인터페이스를 지원하는 형식을 _쿼리 가능 형식_ 이라고 합니다.      
+
+쿼리 가능 형식은 LINQ 데이터 소스로 사용하기 위해 별도의 처리가 필요 없습니다.     
+예를 들어 LINQ to XML과 같은 경우 XElement 형식을 사용해 로드할 수 있습니다.
+```cs
+XElement booksXml = XElement.Load("sample.xml");
+
+var books = from book in booksXml.Elements("Book")
+            where (string)book.Element("Author") == "George Orwell"
+            select new
+            {
+                Title = book.Element("Title")?.Value,
+                Author = book.Element("Author")?.Value
+            };
+
+foreach (var book in books)
+{
+    Console.WriteLine($"Title: {book.Title}, Author: {book.Author}");
+}
+```
+
+`EntityFramework`를 사용하여 C# 클래스와 데이터베이스 스키마 간에 개체 관계형 매핑을 만듭니다.     
+객체에 대한 쿼리를 작성하면 런타임에 EntityFramework가 데이터베이스와의 통신을 별도 처리하는 방식입니다.    
+
+# 쿼리
