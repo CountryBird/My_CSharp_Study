@@ -69,3 +69,61 @@ foreach (var book in books)
 - `select`: 어떤 데이터를 선택해 반환할지 지정할 수 있습니다.
 
 # 실행 방식에 따른 표준 쿼리 연산자 분류
+LINQ to Objects 구현은 즉시 실행, 지연 실행으로 2가지 형식이 있습니다.     
+지연 실행은 또 _스트리밍_, _비스트리밍_ 의 범주로 구분할 수 있습니다.    
+
+## 즉시 실행
+즉시 실행은 **데이터 소스를 읽고 작업이 한 번 수행됨**을 의미합니다.    
+
+주로 스칼라 결과를 반환하는 연산자는 _즉시 실행_ 되는 형태입니다.    
+또한 이러한 연산은 결과를 반환하기 위해 `foreach`를 사용할 필요가 있기 때문에,     
+암묵적으로 `foreach`문이 실행됩니다.    
+```cs
+int[] numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+var evenNum = from num in numbers
+              where num % 2 == 0
+              select num;
+
+ int evenCount = evenNum.Count();
+```
+
+`ToList`, `ToArray`를 사용하면,      
+스칼라 반환 연산자가 아니더라도, 모든 쿼리가 즉시 실행되는 형태로 바꿀 수도 있습니다.    
+쿼리 식 바로 뒤에 배치함으로써 강제로 실행할 수 있습니다.    
+```cs
+int[] numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+List<int> oddNum = (from num in numbers
+              where num % 2 != 0
+              select num).ToList();
+```
+
+## 지연 실행
+지연 실행은 **코드의 쿼리가 선언되는 시점에서 작업이 수행되지 않음**을 의미합니다.    
+예로, `foreach`문에 쿼리 변수가 열거되는 경우를 말할 수 있습니다.    
+
+`IEnumerable<T>`, `IOrderedEnumerable<TElement>`가 반환 형식인 경우 대부분 지연 방식으로 실행됩니다.    
+
+지연 실행은 쿼리 결과가 반복될 때마다 데이터 소스에서 업데이트된 데이터를 가져오는 형태이기 때문에,      
+쿼리 재사용이 가능합니다.    
+
+### 스트리밍
+요소를 생성하기 전에 모든 데이터를 읽지 않습니다.     
+데이터를 하나씩 읽고, 처리, 반환(yield)하는 형태입니다.    
+결과를 만들기 위해 필요한 만큼만 읽는 개념이라 생각하면 됩니다.     
+
+`Where`, `Select` 등이 이에 속합니다.  
+```cs
+var result = numbers.Where(n => n % 2 == 0).Select(n => n * 10);
+```
+### 비스트리밍
+요소를 생성하기 위해 모든 데이터를 읽어야 합니다.     
+정렬과 같이 모든 데이터가 필요한 연산은 이러한 형태를 띕니다.    
+
+`OrderBy` 등이 이에 속합니다.    
+```cs
+var result = numbers.OrderBy(n => n);
+```
+
+# LINQ to Objects
