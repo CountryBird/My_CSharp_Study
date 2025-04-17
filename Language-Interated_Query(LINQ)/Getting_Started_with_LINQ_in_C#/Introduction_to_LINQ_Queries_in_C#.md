@@ -137,3 +137,22 @@ var result = numbers.OrderBy(n => n);
 - 다른 데이터 소스에 대해 같은 방식을 사용하려고 할 때, 수정이 거의 필요 없습니다.
 
 # 쿼리 결과를 메모리에 저장
+쿼리는 기본적으로 데이터를 검색하고 구성하는 방법에 대한 _명령_ 의 개념이기 때문에,      
+`foreach`나 특정 메서드를 통하기 전까지는 지연 실행됩니다.     
+
+`foreach`를 통해 결과를 반복하여 액세스하거나,     
+`ToList`,`ToArray`,`ToDictionary`,`ToLookup` 등으로 통해 결과를 반환합니다.    
+
+```cs
+int[] numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+IEnumerable<int> oddNums = from nums in numbers
+                          where nums % 2 != 0
+                          select nums;
+
+var oddNumsList = oddNums.ToList();
+for (int i = 0; i < oddNumsList.Count; i++)
+{
+   Console.Write($"{oddNumsList[i]} ");
+}
+```
