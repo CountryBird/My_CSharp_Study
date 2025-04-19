@@ -81,3 +81,35 @@ foreach (var gradeGroup in query) // 그룹화된 형태로 나오기 때문에
 위와 같이 이전에 그룹화한 결과에 추가적인 처리가 가능하게 할 수 있습니다.    
 
 ## 쿼리 변수
+LINQ에서 쿼리 변수는 쿼리의 결과 대신 쿼리를 저장하는 개념의 변수입니다.    
+정확히는, IEnumerable 타입이며 `foreach`문이나 `IEnumerator.MoveNext()`를 통해 반복할 때 요소의 시퀀스를 생성하는 형태입니다.   
+
+쿼리의 결과가 쿼리 변수에 저장되는 개념이 아니고, 다른 반복 변수 등을 통해 반환되기 때문에,     
+쿼리 변수는 반복하여 사용할 수 있습니다.   
+
+```cs
+var students = new Student[]{
+   new Student(1,"A"), new Student(1,"B"),new Student(2,"C")};
+
+var query1 = from student in students
+             where student.grade == 1
+             select student;
+
+foreach (var student in query1)
+{
+    Console.WriteLine(student.name);
+}
+
+var query2 = students.Where(student => student.grade == 1);
+foreach (var student in query2)
+{
+    Console.WriteLine(student.name);
+}
+```
+데이터 소스나 쿼리의 내용이 바뀌지 않는 한, 결과는 항상 같습니다.    
+
+### 쿼리 변수의 입력
+쿼리 변수는 `IEnumerable<T>`의 형태로 명시적으로 사용하거나,     
+`var`의 형태로 암시적인 형태로 사용할 수 있습니다.    
+
+## 쿼리 식 시작
