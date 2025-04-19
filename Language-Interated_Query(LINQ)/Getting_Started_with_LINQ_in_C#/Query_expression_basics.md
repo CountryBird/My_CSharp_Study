@@ -41,3 +41,43 @@ var scoreCount = highScoresQuery3.Count();
 ```
 
 # 쿼리 식이란?
+쿼리 식은 C#의 _일급 언어 요소_ 로 취급됩니다.      
+이는 다른 기본적인 C# 객체와 동일하게 취급되어, 변수에 할당하거나 인자로 전달하는 등의 동작을 할 수 있다는 것을 의미합니다.      
+
+쿼리 식은 `from`으로 시작해야 하며, `select` 또는 `group` 절로 끝나야 합니다.   
+이 사이에는 `where`, `orderby`, `join`, `let` 또는 다른 `from` 절이 올 수 있습니다.     
+또한 `into` 키워드를 사용하여 중간 결과를 이어서 사용할 수 있게 할 수 있습니다.    
+
+```cs
+ class Student
+ {
+     public int grade;
+     public string? name;
+
+     public Student(int grade, string? name)
+     {
+         this.grade = grade;
+         this.name = name;
+     }
+ }
+```
+```cs
+var students = new Student[]{
+   new Student(1,"A"), new Student(1,"B"),new Student(2,"C")};
+
+var query = from s in students
+            group s by s.grade into grade
+            where grade.Count() > 1
+            select grade;
+
+foreach (var gradeGroup in query) // 그룹화된 형태로 나오기 때문에 
+{
+    foreach (var student in gradeGroup) // 세부 내용을 보기 위해서는 한 번 더 처리가 필요
+    {
+        Console.WriteLine(student.name);
+    }
+}
+```
+위와 같이 이전에 그룹화한 결과에 추가적인 처리가 가능하게 할 수 있습니다.    
+
+## 쿼리 변수
