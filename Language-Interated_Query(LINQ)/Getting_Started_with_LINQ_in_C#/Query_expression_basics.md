@@ -113,3 +113,18 @@ foreach (var student in query2)
 `var`의 형태로 암시적인 형태로 사용할 수 있습니다.    
 
 ## 쿼리 식 시작
+쿼리 식은 `from` 절로 시작해야 합니다.     
+범위 변수를 통해 데이터 소스를 지정하며, 범위 변수는 시퀀스의 각 요소들을 의미합니다.  
+```cs
+IEnumerable<Country> countryAreaQuery =
+    from country in countries
+    where country.Area > 20 //sq km
+    select country;
+
+// country가 범위 변수
+```
+범위 변수는 쿼리가 세미콜론이나 연속 절로 종료되기 전까지 유효합니다.    
+
+또한 쿼리 식에는, 여러 `from` 절이 포함될 수 있습니다.    
+
+## 쿼리 식 종료
