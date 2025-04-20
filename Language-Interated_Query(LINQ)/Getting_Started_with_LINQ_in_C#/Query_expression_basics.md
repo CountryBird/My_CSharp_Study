@@ -128,3 +128,54 @@ IEnumerable<Country> countryAreaQuery =
 또한 쿼리 식에는, 여러 `from` 절이 포함될 수 있습니다.    
 
 ## 쿼리 식 종료
+쿼리 식은 `group` 절 또는 `select` 절로 끝나야 합니다.    
+
+### group 절
+`group` 절을 사용하여 지정한 키로 구성된 그룹 시퀀스를 생성할 수 있습니다.     
+`IGrouping<Key,Element>`의 형식으로 생성되며, 키와 요소는 어떤 데이터 형식이여도 사용 가능합니다.   
+```cs
+ var people = new Person[]
+ { new Person("Alice"),new Person("Amy"),new Person("Bob"),new Person("Charlie"),
+ new Person("Colin"),new Person("Daisy")};
+
+ var groupPeople = from person in people
+                   group person by person.Name[0];
+
+ foreach (var group in groupPeople)
+ {
+     Console.WriteLine($"Name start with {group.Key}: ");
+     foreach (var person in group)
+     {
+         Console.WriteLine($" {person.Name} ");
+     }
+ }
+```
+위의 코드는, Person 객체의 배열에서 가장 앞 글자를 기준으로 그룹화하는 코드이며       
+그 앞 글자가 _Key_ 가 되고, 키에 따라 그룹화된 요소를 확인할 수 있습니다.     
+
+### select 절
+`select` 절을 사용하여 다른 모든 타입에 대한 시퀀스를 생성할 수 있습니다.     
+간단한 select 절로는 데이터 소스와 같은 타입의 객체를 생성할 수 있고,      
+추가적인 변환을 통해 아예 새로운 타입의 시퀀스를 생성할 수도 있습니다.       
+
+위의 코드와 같은 people 배열이 있다고 가정했을 때,
+```cs
+var sortedPeople = from person in people
+                  orderby person.Name
+                  select person;
+```
+단순히 `select` 절을 사용하여 같은 타입의 시퀀스에 대한 간단한 연산 정도를 할 수도 있지만,   
+
+```cs
+ int Id = 1;
+ var idPeople = from person in people
+                select new
+                {
+                    Id = Id++,
+                    Name = person.Name,
+                };
+```
+원본 데이터를 바탕으로 새로운 타입의 시퀀스를 변환하여 사용할 수도 있습니다.    
+물론 다음과 같은 경우에는 익명 타입을 생성하기 때문에 var 키워드가 필요합니다.    
+
+### into를 통한 연속 사용
