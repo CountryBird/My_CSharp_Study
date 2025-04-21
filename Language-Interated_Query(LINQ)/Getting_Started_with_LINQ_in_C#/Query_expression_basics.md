@@ -179,3 +179,138 @@ var sortedPeople = from person in people
 물론 다음과 같은 경우에는 익명 타입을 생성하기 때문에 var 키워드가 필요합니다.    
 
 ### into를 통한 연속 사용
+`select`, `group` 절에서, `into` 키워드를 사용해 임시 식별자를 만들 수 있습니다.     
+select, group 사용 후 해당 데이터에 추가적인 쿼리를 작업하고자 할 때 유용하게 사용할 수 있습니다.    
+
+예를 들어, 그룹화한 이후 해당 그룹에 대해 조건을 걸어 필터링을 하고 싶을 때와 같은 경우 into를 사용하면     
+직관적인 LINQ 쿼리 작성이 가능합니다.    
+```cs
+ class Person
+ {
+     public string Gender;
+     public int Age;
+
+     public Student(string gender, int age)
+     {
+         this.Gender = gender;
+         this.Age = age;
+     }
+ }
+```
+```cs
+var person = new Person[] {
+    new Person("male",19), new Person("male",25), new Person("female",43), new Person("female",13), new Person("male",55)};
+
+var male = from person in people
+            group person by person.Gender into genderPersonn
+            where genderPerson.Key == "male"
+            select genderPerson;
+```
+위의 코드는 `Gender`에 따라 그룹화한 뒤, 그룹의 Key가 _male_ 인 데이터만 한 번 더 필터링하는 코드입니다.    
+다음과 같이 쿼리에 대한 사후 처리가 필요한 경우 `into`를 활용할 수 있습니다.    
+
+## 필터링, 정렬, 조인
+시작의 `from`, 끝의 `select`/`group`을 제외한 다른 절은 선택 사항입니다.     
+이러한 선택 절은 쿼리에서 사용하지 않을 수 있으며, 반대로 여러 번 사용할 수도 있습니다.     
+
+### where 절
+`where` 절을 사용하여 하나 이상의 조건 식을 데이터에 적용할 수 있습니다.    
+```cs
+var male = from person in people
+            where person.Gender == "male"
+            select person;
+```
+
+### orderby 절
+`orderby` 절을 사용하여 결과를 오름차순 또는 내림차순으로 정렬할 수 있습니다.   
+기본값은 오름차순이며, 명시적으로 적용하는 것 또한 가능합니다. (`ascending`: 오름차순, `descending`: 내림차순)   
+```cs
+var ageDescending = from person in people
+                    orderby person.Age descending
+                    select person;
+```
+
+### join 절
+`join` 절을 사용하면, 키 간의 같음을 기반으로 한 데이터 소스를 다른 데이터 소스와 연결할 수 있습니다.      
+
+```cs
+public class Student
+{
+    public int Id;
+    public string Name;
+
+    public Student(int id, string name)
+    {
+        this.Id = id;
+        this.Name = name;
+    }
+}
+
+public class Grade
+{
+    public int Id;
+    public int Score;
+
+    public Grade(int id, int score)
+    {
+        this.Id = id;
+        this.Score = score;
+    }
+}
+```
+다음과 같이 id라는 변수를 가지는 `Student`, `Grade` 클래스가 있다고 가정합시다.      
+
+```cs
+Student[] students = { new Student(1, "Alice"), new Student(2, "Bob"), new Student(3, "Colin"), new Student(4, "Drake") };
+Grade[] grades = { new Grade(1,50), new Grade(2,87), new Grade(3,7), new Grade(4,98) };
+
+var studentGrade = from student in students
+                   join grade in grades on student.Id equals grade.Id
+                   select new { student.Id, student.Name, grade.Score };
+```
+`from A 요소 in A`       
+`join B 요소 in B on A.Key equals B.Key`와 같은 형식으로 작성하며,  
+같은 Key를 기준으로 하여 데이터를 연결할 수 있게 해줍니다.   
+물론 Key는 이해를 위해 통일하였을 뿐, 각각 다른 이름의 요소일 수 있습니다.     
+
+### let 절
+`let` 절을 이용하여 특정 식의 결과를 새 범위 변수에 저장할 수 있습니다.     
+
+위의 students 배열을 그대로 사용한다고 가정하고,   
+```cs
+var nAndN = from student in students
+            let numAndName = (student.Id).ToString() + ". " + student.Name
+            select numAndName;
+```
+해당 코드를 작성하면, Id와 이름이 하나로 합쳐진 _numAndName_ 변수를 만들어     
+해당 변수에 대한 시퀀스를 작성할 수 있게 됩니다.     
+
+## 하위 쿼리
+쿼리 절에는 _하위 쿼리_ 라고 하는 쿼리 식이 포함될 수 있습니다.    
+각 쿼리들은 동일한 데이터 소스를 가리키지 않아도 됩니다.     
+```cs
+public class Student
+{
+    public int Year;
+    public string Name;
+    public int Score;
+
+    public Student(int year, string name, int score)
+    {
+        Year = year;
+        Name = name;
+        Score = score;
+    }
+}
+```
+```cs
+Student[] students = { new Student(1, "Alice", 90), new Student(1, "Bob", 50), new Student(2, "Colin", 80), new Student(2, "Drake", 98), new Student(3, "Elvin", 66) };
+
+var best = from student in students
+           group student by student.Year into yearGroup
+           select new
+           {
+             Year = yearGroup.Key,
+             BestScore = (from y in yearGroup select y.Score).Max()
+           };
+```
