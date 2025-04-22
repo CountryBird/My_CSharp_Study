@@ -42,3 +42,68 @@ IEnumerable<int> query = numbers.Where( num => num % 2 == 0).OrderByDescending(n
 ```
 
 # 예제 - 쿼리 구문
+대부분의 LINQ 쿼리는 쿼리 구문을 사용하여 쿼리 식을 만듭니다.    
+
+첫번째 예제는 `where`절을 사용해 조건을 적용하는 방법을 보여 줍니다.   
+```cs
+IEnumerable<int> query1 = from num in numbers
+                          where num is < 3 or > 8
+                          select num;
+```
+
+두번째 예제는 위의 쿼리에 역순 정렬에 대한 부분을 추가합니다.  
+```cs
+IEnumerable<int> query2 = from num in numbers
+                          where num is < 3 or > 8
+                          orderby num descending
+                          select num;
+```
+
+세번째 예제는 키에 따라 결과를 그룹화하는 방법을 보여줍니다.    
+```cs
+string[] groupingQuery = ["carrots", "cabbage", "broccoli", "beans", "barley"];
+IEnumerable<IGrouping<char, string>> queryFoodGroups =
+    from item in groupingQuery
+    group item by item[0];
+```
+
+쿼리의 타입은 `IEnumerable<T>`의 형태를 띄며, 이러한 모든 쿼리는 `var` 키워드를 사용해 간단히 나타낼 수 있습니다. 
+
+# 예제 - 메서드 구문
+일부 쿼리 작업은 메서드 호출만으로 표현해야 합니다.     
+가장 일반적으로, `Sum`, `Max`, `Min`, `Average`와 같은 싱글톤 숫자 값을 반환하는 메서드가 있습니다.     
+
+**단일 값으로 반환되기 때문에 추가 쿼리 작업에 사용할 수 없고, 항상 모든 쿼리에서 마지막으로 호출되어야 합니다.**
+
+다음 두 예제는 각각 _평균에 대한 값_, _병합_ 을 위한 메서드입니다. 
+```cs
+List<int> numbers1 = [ 5, 4, 1, 3, 9, 8, 6, 7, 2, 0 ];
+List<int> numbers2 = [ 15, 14, 11, 13, 19, 18, 16, 17, 12, 10 ];
+
+double average = numbers1.Average();
+IEnumerable<int> concatList = numbers1.Concat(numbers2);
+```
+
+일부 메서드들은, 파라미터로 `System.Action` 또는 `System.Func`를 요구하는데,   
+이러한 경우 람다 식을 사용합니다.
+```cs
+IEnumerable<int> greaterThan6 = numbers1.Where(num => num > 6);
+```
+
+단일 값을 반환하는 메서드의 경우에는 즉시 실행됩니다.   
+또한 메서드 구문도 `var` 키워드를 사용해 암시적 형식을 사용할 수 있습니다.   
+
+# 예제 - 쿼리/메서드 혼합 구문
+쿼리 절의 결과에서 메서드 구문을 사용하는 등의 방식으로, 두 구문을 혼합하여 사용할 수 있습니다.   
+```cs
+int numCount1 = (from num in numbers1
+                where num is < 3 or > 7
+                select num).Count();
+```
+해당 식은 마지막에 단일 값을 반환하기 때문에, 쿼리가 즉시 실행됩니다.    
+물론, 메서드 구문만으로도 같은 역할을 하는 식을 작성할 수 있습니다.     
+```cs
+int numCount2 = numbers1.Count(num => num is < 3 or > 7);
+```
+
+# 런타임에 동적으로 조건자 필터 지정
