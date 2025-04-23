@@ -107,3 +107,65 @@ int numCount2 = numbers1.Count(num => num is < 3 or > 7);
 ```
 
 # 런타임에 동적으로 조건자 필터 지정
+경우에 따라 `where`의 조건으로써 적용해야 하는 조건자 수를 설정하기 까다로운 순간이 있을 수 있습니다.    
+예로 id에 대한 조건을 걸고 싶은데 id가 너무 많거나, id가 런타임 중에 변하는 경우를 생각할 수 있습니다.   
+
+이러한 경우 `Contains` 메서드를 사용하여 런타임 중 조건을 설정할 수 있습니다. 
+```cs
+class Person
+{
+    public int Id;
+    public string Name;
+
+    public Person(int id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+}
+```
+```cs
+Person[] people = { new Person(1, "A"), new Person(2, "B"), new Person(3, "C"), new Person(4, "D") };
+
+int[] selectedId= [1, 4];
+var query = from person in people
+            where selectedId.Contains(person.Id)
+            select person;
+
+foreach(var p in query)
+{
+    Console.Write($"{p.Name} "); // A D
+}
+```
+조건리스트.Contains(검사 값)의 형태, 즉 기준이 되는 집합이 앞으로 오는 형태를 띕니다.
+
+```cs
+selectedId = [2, 3, 4];
+foreach (var p in query)
+{
+    Console.Write($"{p.Name} "); // B C D
+}
+```
+쿼리문이 지연 실행된다는 점과 `Contains`를 사용해, 단순히 조건을 바꾸는 것만으로 다른 결과를 출력해 낼 수 있습니다.    
+
+---
+
+`if... else`, `switch`와 같은 제어 흐름 문을 사용하는 것으로     
+조건에 따른 다른 쿼리 실행을 할 수 있습니다.
+```cs
+int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+Console.WriteLine("odd or even?");
+int input = int.Parse(Console.ReadLine());
+
+IEnumerable<int> oddOrEven = input == 0?
+    (from num in numbers where num % 2 == 0 select num):
+    (from num in numbers where num % 2 !=0 select num);
+
+foreach (int num in oddOrEven)
+{
+    Console.Write($"{num} ");
+}
+```
+
+# 쿼리 식의 Null 값 처리
