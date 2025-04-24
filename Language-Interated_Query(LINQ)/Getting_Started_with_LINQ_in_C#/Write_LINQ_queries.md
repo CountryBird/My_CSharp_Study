@@ -169,3 +169,120 @@ foreach (int num in oddOrEven)
 ```
 
 # 쿼리 식의 Null 값 처리
+데이터 소스가 `null`이거나 데이터 요소가 `null`인 경우,        
+`IEnumerable<T>` 컬렉션에는 값이 null인 요소가 포함될 수 있습니다.    
+
+이러한 경우 해당 데이터에 접근하면 `NullReferenceException`이 발생할 수 있기 때문에 별도의 처리가 필요합니다.
+```cs
+class MyClass
+{
+  public MyClass(int myInt)
+  {
+    this.myInt = myInt;
+  }
+}
+```
+```cs
+MyClass[] myClasses = [new MyClass(1), new MyClass(2), null, new MyClass(3)];
+
+IEnumerable<MyClass> query = from myClass in myClasses
+                             where myClass != null // 없으면 사용 시 오류!
+                             select myClass;
+```
+
+---
+
+join 절에서 비교 키 중 하나만 _null 허용 값_ 인 경우, 다른 키를 null 허용 값으로 캐스팅해야 합니다.   
+```cs
+var query =
+    from o in db.Orders
+    join e in db.Employees
+        on o.EmployeeID equals (int?)e.EmployeeID
+    select new { o.OrderID, e.FirstName };
+```
+`o`의 `EmployeeID`는 `int?`이며, `e`의 `EmployeeID`는 `int` 입니다.     
+`equals`와 `is`에서는 타입이 정확히 같아야 비교할 수 있기 때문에, 캐스팅 과정이 필요합니다.    
+
+또한 LINQ에서는 is와 같은 문법 사용을 피하고 equals를 사용하는 것이 좋습니다.    
+LINQ는 쿼리 프로바이더가 데이터 쿼리로 변환하는 것이지, 실제 C#으로 이루어진 코드는 아니기 때문에      
+최신 C# 문법의 경우 제대로 해석되지 않을 가능성이 있습니다.    
+
+# 쿼리 식의 예외 처리
+`IEnumerble`이나 `IQueryable`의 형태라면, 메서드의 반환값도 데이터 소스로 사용될 수 있습니다.   
+때문에, 예외를 일으키거나 데이터 소스를 수정하는 등의 위험 요소도 존재합니다.    
+
+- 예외 처리는 쿼리 밖에서 하는 것이 안전합니다.      
+LINQ 쿼리는 지연 실행되기 때문에 쿼리 내부에서 예외가 발생하면 처리하기 어렵고 예측도 어렵습니다.      
+- 위험 요소를 지닌 코드를 쿼리에 넣으면      
+LINQ의 원래 목적을 잃게 됩니다. (순수 함수형 스타일, 안전하고 읽기 쉬운 코드)
+
+
+#### - 예외 발생 가능성이 있는 _데이터 소스_ 자체 예외 처리
+
+```cs
+IEnumerable<int> GetData() => throw new InvalidOperationException();
+// 예외 발생 코드
+
+// 잘못된 방식 - 예외가 쿼리 내부에서 발생함
+var query = from i in GetData()  
+            select i * i;
+```
+
+```cs
+// 올바르게 수정된 방식 - 예외를 미리 처리
+IEnumerable<int>? dataSource = null;
+try
+{
+    dataSource = GetData();
+}
+catch (InvalidOperationException)
+{
+    Console.WriteLine("Invalid operation");
+}
+
+if (dataSource is not null)
+{
+    var query = from i in dataSource
+                select i * i; 
+
+    foreach (var i in query)
+    {
+        Console.WriteLine(i.ToString());
+    }
+}
+```
+데이터 소스를 가져오는 과정에서 예외가 발생할 가능성이 있다면,     
+쿼리 정의 전에 예외를 처리해주는 것이 바람직합니다.    
+
+#### - 예외 발생 가능성이 있는 _메서드를 포함_ 한 쿼리 예외 처리
+쿼리 내의 메서드에서 예외가 발생할 가능성이 있다면,     
+쿼리 정의 시점이 아닌 실행 시점에 예외를 처리해주는 것이 바람직합니다.    
+
+```cs
+string SomeMethodThatMightThrow(string s) =>
+    s[4] == 'C' ?
+        throw new InvalidOperationException() :
+        $"""C:\newFolder\{s}""";
+// 4번째 문자가 C인 경우 예외 발생
+// 이외의 경우 정상 실행
+
+string[] files = ["fileA.txt", "fileB.txt", "fileC.txt"];
+
+var exceptionDemoQuery = from file in files
+                         let n = SomeMethodThatMightThrow(file)
+                         select n;
+// 쿼리 정의 시점에는 처리 X
+
+try
+{
+    foreach (var item in exceptionDemoQuery)
+    {
+        Console.WriteLine($"Processing {item}");
+    }
+}
+catch (InvalidOperationException e)
+{
+    Console.WriteLine(e.Message);
+}
+// foreach나 .ToList(), .Count()와 같이 실행되는 순간에 처리
+```
