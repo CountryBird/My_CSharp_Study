@@ -30,3 +30,25 @@ LINQ 쿼리 작업은 데이터 소스, 쿼리 자체 및 쿼리 실행에서 �
 3. `foreach`문에서 반복되는 요소 타입은 2번의 익명 타입으로 결정됩니다.
 
 # 컴파일러에서 형식 정보를 유추하도록 허용
+`var` 키워드를 사용하는 것으로, 개발자가 쿼리 작업의 타입을 암시적으로 지정할 수 있습니다.     
+![image](https://github.com/user-attachments/assets/4bfa525a-885e-48a1-9426-3789a3b29820)
+
+# LINQ 쿼리의 IEnumerable<T> 변수
+LINQ 쿼리 변수는 `IEnumerable<T>` 또는 `IQueryable<T>` 등의 형식으로 형식화됩니다.     
+이는 쿼리가 실행될 때 `T` 타입인 0개 이상의 객체 시퀀스를 생성한다는 의미로 받아 들일 수 있습니다.     
+```cs
+IEnumerable<Student> studentQuery = from student in students
+                                    where student.Id > 3
+                                    select student;
+```
+
+# 컴파일러에서 제네릭 타입 선언을 처리하도록 허용
+클래스의 객체나 이름이 긴 객체의 경우 `IEnumerable<T>` 형식으로 적기 불편할 수 있습니다.    
+원하는 경우 `var` 키워드를 사용해 제네릭 타입 구문을 간단히 적을 수 있습니다. 
+```cs
+var studentQuery = from student in students
+                                    where student.Id > 3
+                                    select student;
+```
+다만 `var` 키워드를 지나치게 사용하면 다른 개발자, 사용자가 코드를 이해하기 어려워질 수도 있기 때문에      
+변수의 타입이 명확히 알 수 있거나, 명시적으로 지정하는 것이 중요하지 않은 경우에 사용하는 것이 좋습니다.   
