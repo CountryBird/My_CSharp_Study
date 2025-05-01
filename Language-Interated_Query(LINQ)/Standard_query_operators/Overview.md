@@ -39,3 +39,83 @@ var method = words.GroupBy(w => w.Length, w => w.ToUpper())
 ```
 
 # 쿼리 연산자 유형
+표준 쿼리 연산자는 싱글톤 값 또는 값 시퀀스를 반환하는지 여부에 따라 실행되는 타이밍이 다릅니다.    
+
+싱글톤 값을 반환하는, 즉 결과 값을 반환하는 메서드는 선언 시 바로 실행됩니다.    
+시퀀스 값을 반환하는 메서드는 선언 시 바로 실행되지 않고 열거 형 객체를 반환합니다.    
+
+# 쿼리 연산자
+LINQ 쿼리에서 첫 번쨰 단계는 데이터 원본을 지정하는 것입니다.     
+`from` 절을 사용해 데이터 소스를 지정하고 이로부터 범위 변수를 사용할 수 있습니다.     
+
+범위 변수는 데이터 소스로부터 타입을 유추해 올 수 있기 때문에, 명시적으로 지정해 줄 필요가 없습니다.   
+
+나머지 작업에 대해 설명하자면,    
+- `where`로 데이터를 필터링합니다.
+- `orderby`로 데이터를 정렬하고, `descending`을 추가해 반대로 정렬할 수도 있습니다.
+- `group`으로 데이터를 그룹화하고, `into` 키워드를 사용해 그룹을 재사용 할 수 있습니다.
+- `join`으로 데이터들을 조인할 수 있습니다.
+
+# LINQ를 사용한 데이터 변환
+LINQ은 데이터 검색에만 국한되지 않고, 데이터 변환에도 사용됩니다.     
+
+- 여러 입력 시퀀스를 새로운 타입의 단일 출력 시퀀스로 병합
+- 데이터에서 각 요소에서 하나/여러 속성으로의 출력 시퀀스로 변환
+- 다른 타입의 출력 시퀀스로 변환
+
+```cs
+public class Student
+ {
+     public string FirstName;
+     public string LastName;
+     public int[] Scores;
+
+     public Student(string firstName, string lastName, int[] scores)
+     {
+         FirstName = firstName;
+         LastName = lastName;
+         Scores = scores;
+     }
+ }
+```
+위와 같은 클래스가 정의되어 있다고 가정해봅시다.
+
+```cs
+ Student[] students = [new Student("Kim", "Chul", new int[] { 80, 11 }),
+ new Student("Lee","Young",new int[]{ 11,22,33})];
+
+ var studentsToXML = new XElement("Root",
+     from student in students
+     let scores = string.Join(",", student.Scores)
+     select new XElement("student",
+         new XElement("First", student.FirstName),
+         new XElement("Last", student.LastName),
+         new XElement("Scores", scores)
+     ));
+
+ Console.WriteLine(studentsToXML);
+```
+다음과 같은 형식으로 `XElement`를 사용할 수 있습니다.    
+`XElement(태그, 값)`의 방식으로 사용 가능합니다.   
+
+`XElement`를 중첩하여 사용할 수 있으며,    
+중첩하여 사용하는 경우 내부적으로 태그가 들어가는 효과를 낼 수 있습니다.   
+따라서, 위 코드의 결과는 다음과 같습니다.   
+```xml
+<Root>
+  <student>
+    <First>Kim</First>
+    <Last>Chul</Last>
+    <Scores>80,11</Scores>
+  </student>
+  <student>
+    <First>Lee</First>
+    <Last>Young</Last>
+    <Scores>11,22,33</Scores>
+  </student>
+</Root>
+```
+
+# 권장 사항
+조인 연산 전의 시퀀스에 대해 `orderby` 절을 사용할 수는 있지만 권장하지 않습니다.      
+일부 LINQ 공급자는 조인 후에 해당 순서를 유지하지 않을 수도 있습니다.    
