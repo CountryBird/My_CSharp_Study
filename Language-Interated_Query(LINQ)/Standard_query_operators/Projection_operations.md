@@ -59,3 +59,33 @@ var methodQuery = top.SelectMany(t => bottom,
 쿼리 방식에서 `from`으로 새 컬렉션을 추가 하듯이 `,`로 컬렉션에 대한 파라미터를 지정하는 것이라 생각하면 편합니다.   
 
 # Zip
+`Zip` 메서드는 둘 이상의 시퀀스를 결합하는 메서드입니다.     
+
+두 시퀀스의 동일한 위치에 있는 요소들을 병합하는 역할을 하며, 두 시퀀스의 길이가 다른 경우 짧은 쪽에 맞춰집니다.    
+
+반환 타입은 지정된 위치에 맞게 생성된 튜플입니다.   
+```cs
+ IEnumerable<int> numbers = [ 1, 2, 3, 4, 5, 6 ];
+ IEnumerable<char> letters = ['A', 'B', 'C', 'D'];
+
+ var zip = numbers.Zip(letters);
+
+ foreach (var z in zip)
+ {
+     Console.WriteLine(z);
+     //(1, A)
+     //(2, B)
+     //(3, C)
+     //(4, D)
+ }
+ foreach((int number,char letter) in zip)
+ {
+     Console.WriteLine($"{number} zipped with {letter}");
+     //1 zipped with A
+     //2 zipped with B
+     //3 zipped with C
+     //4 zipped with D
+ }
+```
+
+# Select 및 SelectMany
