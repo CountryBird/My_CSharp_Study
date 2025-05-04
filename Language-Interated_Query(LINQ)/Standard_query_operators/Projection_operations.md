@@ -89,3 +89,43 @@ var methodQuery = top.SelectMany(t => bottom,
 ```
 
 # Select 및 SelectMany
+`Select`와 `SelectMany`는 데이터 소스에서 결과 값을 생성하는 역할을 합니다.    
+
+`Select`는 각 원소마다 하나의 결과 값을 만듭니다.    
+때문에, 입력 컬렉션의 크기와 출력 컬렉션의 크기가 같습니다.      
+![image](https://github.com/user-attachments/assets/313559b6-844d-40a8-ade6-a80cd94fc75f)
+
+
+`SelectMany`는 각 원소마다 여러 개의 결과 값을 반환하고, 이를 하나로 합칩니다.    
+때문에, 출력 컬렉션은 하나로 연결 컬렉션임을 알 수 있습니다.     
+![image](https://github.com/user-attachments/assets/49c87e22-ab22-4676-927d-90878d71961b)
+
+## 코드 예제
+```cs
+class Bouquet
+{
+    public List<string> Flowers;
+}
+```
+
+```cs
+ List<Bouquet> bouquets =
+ [
+     new Bouquet { Flowers = ["sunflower", "daisy", "daffodil", "larkspur"] },
+     new Bouquet { Flowers = ["tulip", "rose", "orchid"] },
+     new Bouquet { Flowers = ["gladiolis", "lily", "snapdragon", "aster", "protea"] },
+     new Bouquet { Flowers = ["larkspur", "lilac", "iris", "dahlia"] }
+ ];
+
+ IEnumerable<List<string>> query1 = bouquets.Select(bq => bq.Flowers);
+ 
+ IEnumerable<string> query2 = bouquets.SelectMany(bq => bq.Flowers);
+```
+
+`Select`의 경우 각 Bouquet 객체(bq)에서 Flowers 리스트를 꺼내오는 역할만을 합니다.    
+때문에 _IEnumerable_ 각각에 _List_ 가 할당되고,    
+쿼리 타입이 _IEnumerable<List<string>>_ 으로 설정됩니다.    
+
+`SelectMany`의 경우 각 Bouquet 객체(bq)에서 Flowers 리스트를 꺼내와 내부 요소들을 평탄화합니다.    
+때문에 _IEnumerable_ 에 _string_ 만이 할당되고,       
+쿼리 타입이 _IEnumerable<string>_ 으로 설정됩니다.     
