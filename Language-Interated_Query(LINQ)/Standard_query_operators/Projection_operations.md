@@ -124,8 +124,8 @@ class Bouquet
 
 `Select`의 경우 각 Bouquet 객체(bq)에서 Flowers 리스트를 꺼내오는 역할만을 합니다.    
 때문에 _IEnumerable_ 각각에 _List_ 가 할당되고,    
-쿼리 타입이 _IEnumerable<List<string>>_ 으로 설정됩니다.    
+쿼리 타입이 _IEnumerable\<List\<string\>\>_ 으로 설정됩니다.    
 
 `SelectMany`의 경우 각 Bouquet 객체(bq)에서 Flowers 리스트를 꺼내와 내부 요소들을 평탄화합니다.    
 때문에 _IEnumerable_ 에 _string_ 만이 할당되고,       
-쿼리 타입이 _IEnumerable<string>_ 으로 설정됩니다.     
+쿼리 타입이 _IEnumerable\<string\>_ 으로 설정됩니다.     
