@@ -71,7 +71,7 @@ IEnumerable<Person> peopleQuery = people.OrderByDescending(p => p.Id);
 
 # 2차 오름차순 정렬
 LINQ 쿼리에서 `orderby ..., ...` 절을 사용해 특정 요소들을 기준으로 1, 2차 정렬을 할 수 있습니다.      
-앞의 요소를 우선적으로 정렬한 뒤, 정렬된 그룹 안에서 다시 정렬합니다.  
+앞의 요소를 우선적으로 정렬한 뒤, 정렬된 그룹 안에서 다시 정렬합니다.   
 ```cs
 IEnuerable<Person> peopleQuery = from person in people
                                  orderby person.Grade, person.Id
@@ -90,5 +90,6 @@ foreach(Person person in peopleQuery)
 ```cs
 IEnumerable<Person> peopleQuery = people.OrderBy(p => p.Grade).ThenBy(p => p.Id);
 ```
+참고로, `ThenBy`가 아닌 `OrderBy`를 연결하여 사용하면 이전의 정렬이 무시되니 주의해야 합니다.
 
 # 2차 내림차순 정렬
