@@ -30,7 +30,7 @@ Person[] people = { new Person { Id = 3, Grade = 2, Name = "Alice"}, new Person 
 # 1차 오름차순 정렬
 LINQ 쿼리에서 `orderby` 절을 사용해 특정 요소를 기준으로 오름차순 정렬할 수 있습니다. 
 ```cs
-IEnuerable<Person> peopleQuery = from person in people
+IEnumerable<Person> peopleQuery = from person in people
                                  orderby person.Id
                                  select person;
 
@@ -51,7 +51,7 @@ IEnumerable<Person> peopleQuery = people.OrderBy(p => p.Id);
 # 1차 내림차순 정렬
 LINQ 쿼리에서 `orderby ... descending` 절을 사용해 특정 요소를 기준으로 내림차순 정렬할 수 있습니다.    
 ```cs
-IEnuerable<Person> peopleQuery = from person in people
+IEnumerable<Person> peopleQuery = from person in people
                                  orderby person.Id descending
                                  select person;
 
@@ -73,7 +73,7 @@ IEnumerable<Person> peopleQuery = people.OrderByDescending(p => p.Id);
 LINQ 쿼리에서 `orderby ..., ...` 절을 사용해 특정 요소들을 기준으로 1, 2차 정렬을 할 수 있습니다.      
 앞의 요소를 우선적으로 정렬한 뒤, 정렬된 그룹 안에서 다시 정렬합니다.   
 ```cs
-IEnuerable<Person> peopleQuery = from person in people
+IEnumerable<Person> peopleQuery = from person in people
                                  orderby person.Grade, person.Id
                                  select person;
 
@@ -93,3 +93,24 @@ IEnumerable<Person> peopleQuery = people.OrderBy(p => p.Grade).ThenBy(p => p.Id)
 참고로, `ThenBy`가 아닌 `OrderBy`를 연결하여 사용하면 이전의 정렬이 무시되니 주의해야 합니다.
 
 # 2차 내림차순 정렬
+LINQ 쿼리에서 `orderby ..., ... descending` 절을 사용해 특정 요소들을 기준으로 1, 2차 내림차순 정렬을 할 수 있습니다.   
+```cs
+IEnumerable<Person> peopleQuery = from person in people
+                                 orderby person.Grade, person.Id descending
+                                 select person;
+
+foreach (Person person in peopleQuery)
+{
+    Console.WriteLine($"{person.Grade}-{person.Id}. {person.Name}");
+    // 1-2. Colin
+    // 2-3. Alice
+    // 2-1. Bob
+    // 3-4. Dave
+}
+```
+다음과 같이 코드가 작성되면, Grade에 따라 오름차순 정렬되고 Id에 따라 내림차순으로 정렬됩니다.   
+
+메서드 방식은 다음과 같이 나타낼 수 있습니다.
+```cs
+IEnumerable<Person> peopleQuery = people.OrderBy(p => p.Grade).ThenByDescending(p => p.Id);
+```
