@@ -31,3 +31,40 @@ foreach(Student student in over60All)
 해당 코드에선, 모든 Score의 값이 60을 넘는 Colin만이 선택됩니다.
 
 # Any
+`Any`는 시퀀스 중 하나라도 조건을 만족하는지를 확인합니다.     
+람다 식을 하나의 요소라도 만족하면 True, 그렇지 않으면 False를 반환합니다.    
+
+```cs
+Student[] students = [ new Student { Scores = [50, 60, 30], Name = "Alice" }, new Student { Scores = [61, 70, 55], Name = "Bob" },
+                  new Student { Scores = [62, 85, 71], Name = "Colin" }];
+
+IEnumerable<Student> over60All = from student in students
+                                 where student.Scores.Any(score => score < 60)
+                                 select student;
+
+foreach (Student student in over60All)
+{
+    Console.WriteLine(student.Name);
+    // Alice
+    // Bob
+}
+```
+
+# Contains
+`Contains`는 시퀀스 중 정확히 해당 값을 가진 요소가 있는지 확인합니다.     
+값이 존재하면 True, 그렇지 않으면 False를 반환합니다.   
+
+```cs
+Student[] students = [ new Student { Scores = [50, 60, 30], Name = "Alice" }, new Student { Scores = [61, 70, 55], Name = "Bob" },
+                  new Student { Scores = [62, 85, 71], Name = "Colin" }];
+
+IEnumerable<Student> over60All = from student in students
+                                 where student.Scores.Contains(50)
+                                 select student;
+
+foreach (Student student in over60All)
+{
+    Console.WriteLine(student.Name);
+    // Alice
+}
+```
