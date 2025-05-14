@@ -182,4 +182,25 @@ var result = from customer in customers
              };
 ```
 
-# 그룹화된 조인
+## 내부 조인 안에서의 그룹화된 조인
+`GroupJoin`을 사용하여 내부 조인을 구현하는 방법입니다.     
+그룹 조인을 통하여 왼쪽 요소에 대해 매칭되는 오른쪽 요소들을 그룹화하여 조인합니다.   
+
+그 다음에, `into`를 사용해 평탄화 작업을 합니다. 이는 결국 1:1 대응으로 펼친 내부 조인과 같은 효과를 만듭니다.
+```cs
+var result1 = customers.GroupJoin(orders, c => c.Id, o => o.CustomerId, (c, orderGroup) => new { c.Name, orderGroup })
+    .SelectMany(x => x.orderGroup, (x,order) => new {Name = x.Name, Product = order.Product});
+    // orderGroup을 지정하여 평탄화 한 후, Name과 엮어 새로운 객체를 만듦
+
+var result2 = from customer in customers
+              join order in orders on customer.Id equals order.CustomerId into cAndO
+              from co in cAndO
+              select new
+              {
+                  Name = customer.Name, // customer는 메인 시퀀스 변수라 LINQ 전체에서 사용 가능
+                  Product = co.Product // order는 join 절의 임시 변수라 사용 못함
+              };
+```
+각각 메서드 스타일과, 쿼리 스타일로 결과를 보일 수 있습니다.     
+
+# 그룹화 조인 수행
