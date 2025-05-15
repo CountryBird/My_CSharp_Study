@@ -204,3 +204,102 @@ var result2 = from customer in customers
 각각 메서드 스타일과, 쿼리 스타일로 결과를 보일 수 있습니다.     
 
 # 그룹화 조인 수행
+_그룹 조인_ 은 계층적 데이터 구조를 생성하는 데 유용합니다.   
+첫 번째 컬렉션의 각 요소와 두 번째 컬렉션에서 상관 관계가 지정된 요소 집합을 쌍으로 구성합니다.    
+
+## 그룹 참여
+```cs
+var customers = new[]
+{
+    new { Id = 1, Name = "Alice" },
+    new { Id = 2, Name = "Bob" }
+};
+
+var orders = new[]
+{
+    new { CustomerId = 1, Product = "Book" },
+    new { CustomerId = 2, Product = "Pen" },
+    new { CustomerId = 1, Product = "Laptop" }
+};
+
+var query = customers.GroupJoin(orders, c => c.Id, o => o.CustomerId, (c, o) => new { Name = c.Name, Product = o });
+
+foreach(var q in query)
+{
+    Console.WriteLine($"{q.Name}: ");
+    foreach(var p in q.Product)
+    {
+        Console.WriteLine($"- {p.Product}");
+    }
+}
+```
+두 번째 컬렉션에 대한 요소는 자동으로 그룹 형태로 구성되어 설정됩니다.
+
+```cs
+var query = from customer in customers
+            join order in orders on customer.Id equals order.CustomerId into orderGroup
+            select new
+            {
+                Name = customer.Name,
+                Product = orderGroup
+            };
+```
+쿼리 방식으로는 다음과 같이 나타낼 수 있습니다.   
+
+## 그룹 조인을 사용하여 XML 만들기
+LINQ to XML과 그룹 조인의 개념을 사용할 수 있습니다.    
+다소 복잡한 형태를 띄지만, 위의 무명 형태와 유사한 형태를 띈다고 생각하면 편합니다.  
+```cs
+XElement queryStyle = new("Customers&Orders",
+    from customer in customers
+    join order in orders on customer.Id equals order.CustomerId into cAndO
+    select new XElement("Customer", new XAttribute("Name", customer.Name),
+    from co in cAndO
+    select new XElement("Order", new XAttribute("Product", co.Product))));
+
+XElement methodStyle = new("Customers&Orders",
+    customers.GroupJoin(orders, customer => customer.Id, order => order.CustomerId,
+    (customer, order) => new XElement("Customer", new XAttribute("Name", customer.Name),
+    from o in order
+    select new XElement("Order",new XAttribute("Product",o.Product)))));
+```
+
+## 왼쪽 외부 조인 수행
+_왼쪽 외부 조인_ 은, 두 번째 컬렉션에 관계 있는 요소의 유무와 관련 없이, 무조건 첫 번째의 요소가 반환되는 조인을 의미합니다.    
+LINQ에서는 `DefaultIfEmpty` 메서드를 호출하여 이를 수행할 수 있습니다.   
+
+```cs
+var customers = new[]
+{
+    new { Id = 1, Name = "Alice" },
+    new { Id = 2, Name = "Bob" },
+    new { Id = 3, Name = "Colin"}
+};
+
+var orders = new[]
+{
+    new { CustomerId = 1, Product = "Book" },
+    new { CustomerId = 2, Product = "Pen" },
+    new { CustomerId = 1, Product = "Laptop" }
+};
+
+ var methodStyle =
+     customers.GroupJoin(orders, customer => customer.Id, order => order.CustomerId,
+     (customer, orderGroup) => new { customer, orderGroup })
+     .SelectMany(cAndO => cAndO.orderGroup.DefaultIfEmpty(),
+     (customer, order) => new
+     {
+         customer.customer.Name,
+         Product = order?.Product 
+     });
+
+ var queryStyle =
+     from customer in customers
+     join order in orders on customer.Id equals order.CustomerId into cAndO
+     from co in cAndO.DefaultIfEmpty()
+     select new
+     {
+         customer.Name,
+         Product = co?.Product
+     };
+```
