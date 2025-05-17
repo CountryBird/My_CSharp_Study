@@ -13,3 +13,57 @@ IEnumerable<IGrouping<int, int>> queryStyle
     = from number in numbers
       group number by number % 2;
 ```
+그룹은 `Key`를 기준으로 그룹화 되며, 해당 그룹 내의 요소들에 대해 접근하는 것도 가능합니다.
+```cs
+foreach(var group in methodStyle)
+{
+    Console.WriteLine(group.Key);
+    foreach(var item in group)
+    {
+        Console.WriteLine(item);
+    }
+}
+```
+
+# 쿼리 결과 그룹화
+그룹화는 LINQ의 가장 강력한 기능 중 하나이며, 다음과 같은 방법으로 데이터를 그룹화할 수 있습니다.   
+- 단일 속성
+- 문자열 속성의 첫 문자
+- 계산된 숫자 범위
+- 부울 조건자 또는 기타 식
+- 복합 키
+
+## 단일 속성에 대한 그룹화
+컬렉션 내의 _단일 속성_ 을 그룹 키로 사용하여 요소를 그룹화하는 방법입니다. 
+```cs
+Student[] students =
+{
+    new Student {Grade = 1, Name = "Alice"},
+    new Student {Grade = 1, Name = "Bob"},
+    new Student {Grade = 2, Name = "Colin"},
+    new Student {Grade = 3, Name = "Dave"}
+};
+
+var groupByGrade_Method = students.GroupBy(s => s.Grade);
+var groupByGrade_Query = from student in students
+                         group student by student.Grade into grade
+                         select grade;
+
+foreach(var student in groupByGrade_Method)
+{
+    Console.WriteLine($"Grade {student.Key}");
+    foreach(var s in student)
+    {
+        Console.Write($" {s.Name} ");
+    }
+}
+// Grade 1
+// Alice
+// Bob
+//Grade 2
+// Colin
+//Grade 3
+// Dave
+```
+
+## 값에 대한 그룹화
