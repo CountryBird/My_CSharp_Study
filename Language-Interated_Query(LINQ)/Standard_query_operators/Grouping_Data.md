@@ -67,3 +67,34 @@ foreach(var student in groupByGrade_Method)
 ```
 
 ## 값에 대한 그룹화
+컬렉션 내의 속성이 아닌 _값_ 의 개념에서 그룹 키를 사용해 요소를 그룹화하는 방법입니다. 
+```cs
+Student[] students =
+{
+    new Student {Grade = 1, Name = "Alice"},
+    new Student {Grade = 2, Name = "Austin"},
+    new Student {Grade = 2, Name = "Blake"},
+    new Student {Grade = 3, Name = "Bruce"}
+};
+
+var groupByNameStart_Method = students.GroupBy(s => s.Name[0]);
+var groupByNameStart_Query = from student in students
+                             group student by student.Name[0];
+
+foreach(var student in groupByNameStart_Method)
+{
+    Console.WriteLine($"Name start with {student.Key}");
+    foreach(var s in student)
+    {
+        Console.WriteLine($" {s.Name} ");
+    }
+}
+// Name start with A
+//  Alice
+//  Austin
+// Name start with B
+//  Blake
+//  Bruce
+```
+
+## 범위에 대한 그룹화
