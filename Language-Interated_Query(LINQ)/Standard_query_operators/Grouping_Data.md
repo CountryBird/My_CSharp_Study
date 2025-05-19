@@ -98,3 +98,65 @@ foreach(var student in groupByNameStart_Method)
 ```
 
 ## 범위에 대한 그룹화
+수식 메서드를 통해 일종의 _범위_ 개념을 만들어 이를 그룹 키로 사용해 그룹화하는 방법입니다.
+```cs
+public class Student
+{
+    public string Name;
+    public int[] Scores;
+}
+
+static int GetPercentile(Student s)
+{
+    double avg = s.Scores.Average();
+    return avg > 0 ? (int) avg / 10 : 0;
+}
+```
+```cs
+Student[] students = { new Student { Name = "Alice", Scores = [30, 50, 70]},
+    new Student { Name = "Bob", Scores = [50, 60, 85] }, new Student { Name = "Colin", Scores = [50, 30, 70] } };
+
+var groupByScorePercentMethod = students.GroupBy(student => GetPercentile(student));
+var groupByScorePercentQuery = from student in students
+                               let percent = GetPercentile(student)
+                               group student by percent;
+
+foreach(var group in groupByScorePercentMethod)
+{
+    Console.WriteLine($"Score around {group.Key * 10}");
+    foreach(var student in group)
+    {
+        Console.Write($"{student.Name} ");
+    }
+    Console.WriteLine();
+}
+
+// Score around 50
+// Alice Colin
+// Score around 60
+// Bob
+```
+
+## 비교에 따른 그룹화
+_부울 식을 통해_ 비교를 하여 소스 요소를 그룹화하는 방법입니다. 
+```cs
+var over60Method = students.GroupBy(student => student.Scores.Average() > 60);
+var over60Query = from student in students
+                  group student by student.Scores.Average() > 60;
+
+foreach(var group in over60Query)
+{
+    Console.WriteLine($"over 60? {group.Key}");
+    foreach(var student in group)
+    {
+        Console.Write($"{student.Name} "); 
+    }
+    Console.WriteLine();
+}
+// over 60? False
+// Alice Colin
+// over 60? True
+// Bob
+```
+
+## 무명 타입에 따른 그룹화
