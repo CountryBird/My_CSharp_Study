@@ -160,3 +160,23 @@ foreach(var group in over60Query)
 ```
 
 ## 무명 타입에 따른 그룹화
+여러 값이 포함된 키를 그룹화하는 방법으로, _무명 타입_ 으로 값들을 캡슐화하는 방법이 있습니다. 
+```cs
+var groupByCompoundKeyMethod = students
+     .GroupBy(student => new { Name = student.Name, Over30 = student.Scores[0] > 30 });
+
+var groupByCompoundKeyQuery = from student in students
+                              group student by new
+                              {
+                                  Name = student.Name,
+                                  Over30 = student.Scores[0] > 30
+                              };
+
+foreach( var student in groupByCompoundKeyMethod )
+{
+    Console.WriteLine(student.Key.Name);
+    Console.WriteLine(student.Key.Over30);
+}
+```
+
+# 중첩 그룹 만들기기
