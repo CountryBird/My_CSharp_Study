@@ -179,4 +179,92 @@ foreach( var student in groupByCompoundKeyMethod )
 }
 ```
 
-# 중첩 그룹 만들기기
+# 중첩 그룹 만들기
+LINQ 쿼리 식에서 _중첩으로 그룹_ 을 만들 수도 있습니다.
+```cs
+  public class Student
+  {
+      public string Name;
+      public int Grade;
+      public int Score;
+  }
+```
+```cs
+Student[] students = { new Student { Name = "Alice", Grade = 1, Score = 60},
+    new Student { Name = "Bob", Grade = 1, Score = 80 }, new Student { Name = "Colin", Grade = 2,Score = 80 } };
+
+
+var nestedGroupQuery =
+    from student in students
+    group student by student.Grade into gradeGroup
+    from gGroup2 in
+    from gGroup in gradeGroup         // 이 부분이
+    group gGroup by gGroup.Score > 70 // 내부 쿼리라고 생각하면 이해가 쉬움
+    group gGroup2 by gradeGroup.Key;
+
+var nestedGroupMethod =
+    students.GroupBy(student => student.Grade)
+    .Select(gGroup => new
+    {
+        gGroup.Key,
+        gGroup2 = gGroup
+        .GroupBy(student => student.Score > 70)
+    });
+
+foreach ( var student in nestedGroupQuery )
+{
+    Console.WriteLine($"- Grade: {student.Key}");
+    foreach(var st in student)
+    {
+        Console.WriteLine($" - Over 70?:{st.Key}");
+        foreach(var s in st)
+        {
+            Console.WriteLine($"    {s.Name}");
+        }
+    }
+}
+
+foreach (var student in nestedGroupMethod)
+{
+    Console.WriteLine($"- Grade: {student.Key}");
+    foreach (var st in student.gGroup2)
+    {
+        Console.WriteLine($" - Over 70?:{st.Key}");
+        foreach (var s in st)
+        {
+            Console.WriteLine($"    {s.Name}");
+        }
+    }
+}
+```
+
+# 그룹화 작업에서 하위 쿼리 수행
+_그룹화를 수행한 컬렉션을 바탕으로 하위 쿼리를 실행_ 할 수도 있습니다.
+```cs
+Student[] students = { new Student { Name = "Alice", Grade = 1, Score = [60,50]},
+    new Student { Name = "Bob", Grade = 1, Score = [80,70] }, new Student { Name = "Colin", Grade = 2,Score = [80,85] } };
+
+
+var groupQuery =
+    from student in students
+    group student by student.Grade into gradeGroup
+    select new
+    {
+        Grade = gradeGroup.Key,
+        Best = (from student in gradeGroup
+                select student.Score.Average()).Max()
+    };
+
+var groupMethod =
+    students.GroupBy(student => student.Grade)
+    .Select(gGroup => new
+    {
+        Grade = gGroup.Key,
+        Best = gGroup.Select(student => student.Score.Average()).Max()
+    });
+
+foreach(var student in groupQuery)
+{
+    Console.WriteLine($"Grade {student.Grade}'s best = {student.Best}");
+}
+```
