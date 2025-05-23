@@ -186,4 +186,17 @@ Console.WriteLine($"Cooking Time: {sw.Elapsed.TotalSeconds} s");
 필요 이상으로 시간이 흐른다는 점에서 일부 비효율적일 수 있습니다.         
 (요리를 예로 음식을 태웠다고 비유할 수 있습니다.)   
 
-# Task를 통한 구성 지원
+# Task를 통한 조합 지원
+특정 코드가 하나의 단위로 묶일 수 있다고 생각되면,          
+동기/비동기를 조합하여 작성할 수도 있습니다.     
+다만 `await` 를 사용하기 때문에 메서드는 `async`를 가져야합니다.
+```cs
+static async Task<Toast> MakeToastWithButterAndJamAsync(int number)
+{
+    var toast = await ToastBreadAsync(number);
+    ApplyButter(toast);
+    ApplyJam(toast);
+
+    return toast;
+}
+```
