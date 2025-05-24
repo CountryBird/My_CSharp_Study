@@ -200,3 +200,32 @@ static async Task<Toast> MakeToastWithButterAndJamAsync(int number)
     return toast;
 }
 ```
+
+# 비동기 예외 처리
+비동기 메서드도 동기 메서드와 마찬가지로 `throw`를 할 수 있습니다.      
+
+비동기 메서드 내부에서 예외가 발생하더라도, **즉시 발생하지 않습니다.**    
+단, 예외가 사라지는 것이 아닌 `Task`에 캡슐화되는 개념이기 때문에 `await`하는 순간 그 때 예외가 throw 됩니다.
+
+```cs
+private static async Task<Toast> ToastBreadAsync(int slices)
+{
+    for (int slice = 0; slice < slices; slice++)
+    {
+        Console.WriteLine("Putting a slice of bread in the toaster");
+    }
+    Console.WriteLine("Start toasting...");
+    await Task.Delay(2000);
+    Console.WriteLine("Fire! Toast is ruined!");
+    throw new InvalidOperationException("The toaster is on fire");
+    await Task.Delay(1000);
+    Console.WriteLine("Remove toast from toaster");
+
+    return new Toast();
+}
+```
+`await`이 예외를 `throw`하기 때문에,      
+잡아주지 않으면, 사실상 예외가 사라진 효과가 나며       
+잡아주는 경우, 동기 메서드와 동일하게 `try-catch`가 없으면 계속해서 전파됩니다.
+
+# await을 Task에 적용
