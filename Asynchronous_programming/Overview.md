@@ -229,3 +229,39 @@ private static async Task<Toast> ToastBreadAsync(int slices)
 잡아주는 경우, 동기 메서드와 동일하게 `try-catch`가 없으면 계속해서 전파됩니다.
 
 # await을 Task에 적용
+`await` 클래스의 메서드를 사용하여 `Task` 식을 개선할 수 있습니다.     
+`WhenAll`를 사용하면 비동기 작업 여러 개를 동시에 실행하고 모두 완료될 때까지 기다릴 수 있습니다.     
+그렇기 때문에, 해당 메서드 안에는 `Task` 타입이어야 한다는 제약 조건이 있습니다.      
+
+처리하고자 하는 작업의 결과 값이 메서드의 결과 값이 됩니다.   
+```cs
+await Task.WhenAll(eggsTask, baconTask, toastTask);
+Console.WriteLine("Eggs are ready");
+Console.WriteLine("Bacon is ready");
+Console.WriteLine("Toast is ready");
+Console.WriteLine("Breakfast is ready!");
+```
+
+이러한 형식을 응용하여 `Task`의 컬렉션 형태를 만들어 등록한 뒤, 일괄 처리가 가능하게 할 수 있습니다.    
+또한 `WhenAny` 메서드는 작업 중 가장 처음으로 완료되는 작업에 대한 결과를 보여줍니다.    
+```cs
+var breakfastTasks = new List<Task> { eggsTask, baconTask, toastTask };
+while (breakfastTasks.Count > 0)
+{
+    Task finishedTask = await Task.WhenAny(breakfastTasks);
+    if (finishedTask == eggsTask)
+    {
+        Console.WriteLine("Eggs are ready");
+    }
+    else if (finishedTask == baconTask)
+    {
+        Console.WriteLine("Bacon is ready");
+    }
+    else if (finishedTask == toastTask)
+    {
+        Console.WriteLine("Toast is ready");
+    }
+    await finishedTask;
+    breakfastTasks.Remove(finishedTask);
+}
+```
