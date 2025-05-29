@@ -35,3 +35,48 @@ using var reader = new StreamReader("person.json");
 참고로, `Serialize<T>` 메서드는 반대로 객체를 Json 형태로 바꾸는 역할을 합니다.     
 
 # 쓰기 쉬움
+`async`와 `await` 키워드는 비동기 프로그래밍의 핵심입니다.      
+이 두 키워드를 사용하는 것으로 .NET 과 Windows 런타임 환경에서 동기적 메서드를 만드는 만큼 쉽게 비동기 메서드를 만들 수 있습니다.    
+
+```cs
+static void DoIndependentWork()
+{
+    Console.WriteLine("Working...");
+}
+static public async Task<int> GetUrlContentLengthAsync()
+{
+    using var client = new HttpClient();
+
+    Task<string> getStringTask = 
+        client.GetStringAsync("https://learn.microsoft.com/dotnet");
+
+    DoIndependentWork();
+
+    string contents = await getStringTask;
+    return contents.Length;
+}
+public static void Main(string[] args)
+{
+    Console.WriteLine(GetUrlContentLengthAsync());
+}
+```
+비동기 메서드는 `async` 키워드를 포함하고, `Task` 형태의 타입을 반환하며, `Async`로 끝나는 이름을 가집니다.     
+이번 코드에서는 `Task<string>`을 반환하기 때문에 `await`을 수행하여 `string`을 결과로 얻게 됩니다.     
+
+`await` 키워드는 지정한 비동기 작업이 완료될 때까지 현재 메서드의 실행을 일시 중지합니다.      
+단 프로그램 전체가 멈추는 것이 아닌, **호출한 쪽으로 제어가 넘어가는** 방식입니다.      
+작업이 완료되면, 그 시점에서 `await` 이후 코드가 이어서 실행됩니다.    
+
+---
+
+다음 특성들은 비동기 메서드를 만드는 방법을 요약합니다.    
+
+- 메서드에는 `async` 키워드가 포함됩니다.
+- 권장되는 규칙으로, Async라는 접미사로 메서드 이름을 짓습니다.
+- 반환 타임은 다음들 중 하나입니다.
+  - 반환값이 있는 경우, `Task<반환값 타입>` 형태로 작성합니다.
+  - 반환값이 없는 경우, `Task` 형태로 작성합니다.
+  - 비동기 이벤트 핸들러의 경우 `void`로 작성합니다.
+- `async` 키워드를 사용한 메서드는 일반적으로 하나 이상의 `await`의 식을 포함합니다.
+
+# 비동기 메서드에서 발생하는 동작
