@@ -80,3 +80,40 @@ public static void Main(string[] args)
 - `async` 키워드를 사용한 메서드는 일반적으로 하나 이상의 `await`의 식을 포함합니다.
 
 # 비동기 메서드에서 발생하는 동작
+비동기 프로그래밍에서 이해해야 할 가장 중요한 점은 _제어의 흐름_ 인데,      
+다음 다이어그램은 이러한 프로세스를 보여줍니다.     
+![image](https://github.com/user-attachments/assets/a2cadc4c-e602-4afe-bbcc-19818f15cb58)           
+1. (호출 메서드 입장)       
+비동기 메서드 `GetUrlContentLengthAsync`를 호출하고 대기합니다.
+   
+2. (GetUrlContentLengthAsync 입장)      
+`HttpClient`를 생성하고 `GetStringAsync`를 비동기 호출하여       
+웹 사이트의 콘텐츠를 문자열로 다운로드합니다.
+
+3. (GetStringAsync 입장)       
+자신을 호출한 함수에게 제어권을 넘겨줍니다.              
+`Task<string>`에 저장하였음으로, `string`을 가져올 **작업**을 하고 있다는 것을 나타냅니다.
+
+4. (GetUrlContentLengthAsync 입장)      
+아직 `await`을 만나지 않았기 때문에,        
+`GetStringAsync`의 실행에 영향을 받지 않는 작업을 할 수 있습니다.
+
+5. (DoIndependentWork 입장)       
+`DoIndependentWork`는 해당 작업을 수행하고 호출자에게 반환하는 동기 메서드입니다.
+
+6. (GetUrlContentLengthAsync 입장)       
+`GetStringAsync`와 연관 없는 코드는 모두 실행하였기 때문에,
+`GetUrlContentLengthAsync`에서도 할 수 있는 작업이 없습니다.         
+때문에 자신을 호출했던 메서드에게 다시 제어권을 넘깁니다. 이 때 반환 타입은 `Task<int>`이기 때문에        
+`int`를 가져올 것이라 약속하는 셈입니다.
+
+7. (GetUrlContentLengthAsync 입장)     
+`GetStringAsync`의 작업이 완료되고, 문자열 결과를 가져옵니다.      
+정확히는, `Task<string>`의 결과를 가져오지만 `await`이 작업이 완료되면 실제 결과값을 꺼내오는 역할도 하기 때문에
+`contents` 변수에는 `string`을 가져옵니다.
+
+8. (GetUrlContentLengthAsync 입장)       
+문자열 결과가 있기 때문에, 문자열의 길이를 계산할 수 있습니다.
+성공적으로 `GetUrlContentLengthAsync`의 작업도 완료되고, 호출 메서드로 다시 돌아갑니다.
+
+# API 비동기 메서드
