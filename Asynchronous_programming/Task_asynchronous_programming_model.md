@@ -152,4 +152,50 @@ public static void Main(string[] args)
 `await` 식이 없다고 해서 컴파일 오류가 발생하지는 않습니다.     
 다만 이러한 경우에는, 그냥 동기 방식으로 메서드를 사용하는 것과 다른 점이 없습니다.     
 
-# 반환 타입 및 매개 변
+# 반환 타입 및 매개 변수
+비동기 메서드는 일반적으로 `Task` 또는 `Task<T>`를 반환합니다.     
+
+메서드에 타입 `T`를 지정하는 return 문이 포함된 경우,    
+반환 타입은 `Task<T>`의 형태로 지정됩니다.    
+
+메서드에 return문이 없거나 반환하지 않는 경우,      
+반환 타입은 `Task`의 형태로 지정됩니다.     
+
+이 이외에도 `GetAwaiter`를 포함한 방식의 메서드가 있는 경우, 해당 방식에 맞춰서 반환 타입을 설정할 수 있습니다.    
+(`await`은 대상이 `GetAwaiter`를 가지고 있는 경우에 자체적으로 실행해 사용는 형태인데,      
+`Task`와 `Task<T>`도 `GetAwaiter`를 자체적으로 가지고 있기 때문에 `await`을 사용해 비동기 처리가 가능한 것입니다.)     
+
+```cs
+static async Task<int> GetTaskOfTResultAsync()
+{
+    int hours = 0;
+    await Task.Delay(hours);
+
+    return hours;
+}
+static async Task GetTaskAsync()
+{
+    await Task.Delay(0);
+}
+public static async void Main(string[] args)
+{
+    Task<int> returnedTaskTResult = GetTaskOfTResultAsync();
+    int intResult = await returnedTaskTResult;
+    // Task<T> 형태
+
+    Task returnedTask = GetTaskAsync();
+    await returnedTask;
+    // Task 형태
+}
+```
+
+반환된 각 작업은 진행 중인 작업을 의미하며,    
+`Task`는 비동기 프로세스의 상태에 대한 정보를 캡슐화하고, 문제가 있을 경우 예외를 캡슐화합니다.     
+
+비동기 메서드는 특이한 경우 `void`를 반환 타입을 가질 수도 있는데 (ex) 이벤트 핸들러),     
+이러한 경우 대기할 수 없고 예외를 `catch`할 수 없습니다.    
+
+비동기 메서드는 참조 타입을 반환하거나, 매개 변수로 사용할 수 없지만,    
+이러한 변수가 있는 메서드를 호출하는 것은 가능합니다.   
+
+# 명명 규칙
