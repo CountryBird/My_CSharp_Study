@@ -35,3 +35,52 @@ await writer.WriteAsync("Hello Async!");
 ```
 
 ## 텍스트 쓰기
+다음 예제에서는 파일에 텍스트를 작성하는 예를 보입니다.  
+
+### 간단한 예
+```cs
+static public async Task SimpleWriteAsync()
+{
+    string filePath = "simple.txt";
+    string text = $"Hello World!";
+
+    await File.WriteAllTextAsync(filePath, text);
+}
+public static async Task Main(string[] args)
+{
+    await SimpleWriteAsync();
+}
+```
+`WriteAllTextAsync`를 통해 특정 파일에 텍스트를 작성할 수 있습니다.   
+
+### 한정된 제어 예
+```cs
+static async Task ProcessWriteAsync()
+{
+    string filePath = "temp.txt";
+    string text = $"Hello World{Environment.NewLine}";
+
+    await WriteTextAsync(filePath,text);
+}
+static async Task WriteTextAsync(string filePath, string text)
+{
+    byte[] encodedText = Encoding.Unicode.GetBytes(text);
+
+    using var sourceStream = 
+        new FileStream(
+            filePath,
+            FileMode.Create,FileAccess.Write, FileShare.None,
+            bufferSize: 4096, useAsync: true);
+
+    await sourceStream.WriteAsync(encodedText,0,encodedText.Length);
+}
+public static async Task Main(string[] args)
+{
+    await ProcessWriteAsync();
+}
+```
+`FileStream`에서,    
+ - `FileMode.Create`: 파일이 존재하면 덮어쓰기, 없으면 새로 만드는 설정입니다.
+ - `FileAcess.Write`: 쓰기 전용 접근 설정입니다.
+ - `FileShare.None`: 다른 프로세스가 동시에 이 파일을 열수 없게 하는 설정입니다.
+ - `useAsync: true`: 비동기 I/O를 최적화하는 설정입니다.   
