@@ -79,6 +79,9 @@ public static async Task Main(string[] args)
     await ProcessWriteAsync();
 }
 ```
+이전의 코드와 비교하여, `Stream`을 직접 설정하여 `WriteAsync`를 사용하기 때문에 
+코드가 좀 더 길어졌지만, 세부 설정이 가능하다는 차이가 있습니다.  
+
 `FileStream`에서,    
  - `FileMode.Create`: 파일이 존재하면 덮어쓰기, 없으면 새로 만드는 설정입니다.
  - `FileAcess.Write`: 쓰기 전용 접근 설정입니다.
