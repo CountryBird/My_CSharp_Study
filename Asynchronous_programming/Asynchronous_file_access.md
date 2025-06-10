@@ -51,7 +51,7 @@ public static async Task Main(string[] args)
     await SimpleWriteAsync();
 }
 ```
-`WriteAllTextAsync`를 통해 특정 파일에 텍스트를 작성할 수 있습니다.   
+`WriteAllTextAsync`를 통해 특정 파일에 텍스트를 비동기적으로 작성할 수 있습니다.   
 
 ### 한정된 제어 예
 ```cs
@@ -87,3 +87,73 @@ public static async Task Main(string[] args)
  - `FileAcess.Write`: 쓰기 전용 접근 설정입니다.
  - `FileShare.None`: 다른 프로세스가 동시에 이 파일을 열수 없게 하는 설정입니다.
  - `useAsync: true`: 비동기 I/O를 최적화하는 설정입니다.   
+
+## 텍스트 읽기
+다음 예제는 파일에 텍스트를 읽는 예를 보입니다.   
+
+### 간단한 예
+```cs
+static public async Task SimpleReadAsync()
+{
+    string filePath = "simple.txt";
+    string text = await File.ReadAllTextAsync(filePath);
+
+    Console.WriteLine(text);
+}
+public static async Task Main(string[] args)
+{
+    await SimpleReadAsync();
+}
+```
+`ReadAllTextAsync`를 통해 파일에 비동기적으로 접근할 수 있습니다.   
+
+### 한정된 제어 예
+```cs
+static public async Task ProcessReadAsync()
+{
+    try
+    {
+        string filePath = "simple.txt";
+        if (File.Exists(filePath))
+        {
+            string text = await ReadTextAsync(filePath);
+            Console.WriteLine(text);
+        }
+        else
+        {
+            Console.WriteLine($"file not found: {filePath}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}
+static public async Task<string> ReadTextAsync(string filePath)
+{
+    using var sourceStream = 
+        new FileStream(
+            filePath,
+            FileMode.Open, FileAccess.Read,FileShare.Read,
+            bufferSize:4096, useAsync: true);
+
+    var sb = new StringBuilder();
+
+    byte[] buffer = new byte[0x1000];
+    int numRead;
+    while((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+    {
+        string text = Encoding.UTF8.GetString(buffer,0,numRead);
+        sb.Append(text);
+    }
+    return sb.ToString();
+}
+public static async Task Main(string[] args)
+{
+    await ProcessReadAsync();
+}
+```
+해당 코드는 `FielStream`과 `ReadAsync`를 통해 세부 설정을 통한 비동기 읽기를 실행하는 코드입니다.   
+buffer를 통해 파일의 내용을 청크 단위로 읽어오고, UTF8 방식을 통해 바이트를 인코딩(유니코드 문자열 변환)합니다.    
+
+## 병렬 비동기 I/O
