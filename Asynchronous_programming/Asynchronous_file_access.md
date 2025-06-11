@@ -157,3 +157,86 @@ public static async Task Main(string[] args)
 buffer를 통해 파일의 내용을 청크 단위로 읽어오고, UTF8 방식을 통해 바이트를 인코딩(유니코드 문자열 변환)합니다.    
 
 ## 병렬 비동기 I/O
+다음 예제에서는 10개의 텍스트 파일을 작성하여 병렬 처리를 하는 예를 보여 줍니다.  
+
+### 간단한 예
+```cs
+public async Task SimpleParallelWriteAsync()
+{
+    string folder = Directory.CreateDirectory("tempfolder").Name;
+    IList<Task> writeTaskList = new List<Task>();
+
+    for (int index = 11; index <= 20; ++ index)
+    {
+        string fileName = $"file-{index:00}.txt";
+        string filePath = $"{folder}/{fileName}";
+        string text = $"In file {index}{Environment.NewLine}";
+
+        writeTaskList.Add(File.WriteAllTextAsync(filePath, text));
+    }
+
+    await Task.WhenAll(writeTaskList);
+}
+
+static async Task Main(string[] args)
+{
+    await SimpleParallelWriteAsync();
+}
+```
+위의 코드는 `tempfolder`라는 디렉토리를 생성한 뒤,       
+`for` 문을 순회하며 새로운 txt 10개의 파일을 생성합니다.  
+`WhenAll`을 통해 작업을 수행하기 때문에 병렬 처리가 가능해집니다.   
+
+### 한정된 제어 예
+```cs
+public async Task ProcessMultipleWritesAsync()
+{
+    IList<FileStream> sourceStreams = new List<FileStream>();
+
+    try
+    {
+        string folder = Directory.CreateDirectory("tempfolder").Name;
+        IList<Task> writeTaskList = new List<Task>();
+
+        for (int index = 1; index <= 10; ++ index)
+        {
+            string fileName = $"file-{index:00}.txt";
+            string filePath = $"{folder}/{fileName}";
+
+            string text = $"In file {index}{Environment.NewLine}";
+            byte[] encodedText = Encoding.Unicode.GetBytes(text);
+
+            var sourceStream =
+                new FileStream(
+                    filePath,
+                    FileMode.Create, FileAccess.Write, FileShare.None,
+                    bufferSize: 4096, useAsync: true);
+
+            Task writeTask = sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
+            sourceStreams.Add(sourceStream);
+
+            writeTaskList.Add(writeTask);
+        }
+
+        await Task.WhenAll(writeTaskList);
+    }
+    finally
+    {
+        foreach (FileStream sourceStream in sourceStreams)
+        {
+            sourceStream.Close();
+        }
+    }
+}
+
+static async Task Main(string[] args)
+{
+    await ProcessMultipleWriteAsync();
+}
+```
+위의 예제는 기존의 방식들과 유사하게, 
+`FileStream`을 통해 세부적인 설정을 한 후 비동기 처리를 하며       
+`WhenAll`을 통해 병렬적으로 작업을 처리합니다.   
+
+또한, 모든 작업이 완료되는 시점인 `finally` 블럭에서     
+`FileStream`을 닫음으로써 작업이 완료되기 전 해당 객체가 삭제되는 것을 방지할 수 있습니다.    
