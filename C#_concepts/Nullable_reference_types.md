@@ -69,3 +69,25 @@ void FindRoot(Node node, Action<Node> processNode)
 > [MemberNotNull] 특성을 사용해 특정 필드/속성이 null이 아님을 보장하는 방법이 있습니다.
 
 # API 시그니처의 특성
+`null-state` 분석에는 API의 의미 체계를 이해하기 위한 개발자의 힌트가 필요합니다.    
+일부 API는 null 검사를 제공하며, 해당 변수의 `null-state`를 _`maybe-null`에서 `not-null`_ 로 변경합니다.
+
+```cs
+    static void PrintMessageUpper(string? message)
+    {
+        if(!IsNull(message))
+        {
+            Console.WriteLine(message);
+        }
+    }
+    //static bool IsNull(string? s) => s == null;
+    static bool IsNull([NotNullWhen(false)] string? s) => s == null;
+```
+주석 처리된 첫번째 IsNull의 경우 문제가 없어 보이지만,   
+컴파일러 입장에서 IsNull 메서드가 null 체크의 역할이라는 사실을 모르기 때문에 `message`가 여전히 `maybe-null`로 간주되고,    
+`message.ToUpper` 등의 메서드에서 경고를 발생시킵니다.    
+
+이 때, 개발자는 [NotNullWhen] 특성을 사용해 해당 메서드가       
+특정 값을 반환할 때 null 값이 아님을 보장할 수 있습니다.  
+
+# null 허용 변수 주석
