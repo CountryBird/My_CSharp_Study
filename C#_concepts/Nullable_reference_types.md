@@ -122,7 +122,7 @@ null이 될 수 있다는 것을 명시합니다.
 ---
 
 경우에 따라 변수가 null이 아님을 알고 있지만    
-컴파일러가 `null-state`를 `maybe-nu;;`임을 판단하는 경우 별도 처리가 필요합니다.   
+컴파일러가 `null-state`를 `maybe-null`임을 판단하는 경우 별도 처리가 필요합니다.   
 변수 이름 뒤에 `!`을 사용해 `null-state`를 `not-null`로 강제할 수 있습니다.   
 ```cs
 string nullString = null;
@@ -152,3 +152,40 @@ null 허용 값 타입은 다른 방식으로 구현된다는 차이가 있습�
 런타임에 아무런 기능이 없다는 것을 이해해야 합니다. 
 
 # 제네릭
+제네릭 null 허용 타입 `T?`에 대해서는 조금 더 자세한 규칙이 필요합니다.   
+null 허용 값 타입과 null 허용 참조 타입이 다르기 때문에 이 부분은 명확히 이해할 필요가 있습니다.     
+
+## T?의 의미
+- `T`가 참조 타입 ==> nullable 참조형 (`string` -> `string?`)
+- `T`가 값 타입 ==> 같은 타입에 Nullable 포장 (`int` -> `Nuallable<int>`)
+- `T`가 nullable 참조 타입 ==> 그대로 (`string?` -> `string?`)
+- `T`가 nullable 값 타입 ==> 그대로 (`int?` -> `int?`)
+
+## 반환 값과 매개변수에서의 T?
+- 반환값의 `T?`는 `[MaybeNull]T`
+- 매개변수의 `T?`는 `[AllowNull]T`
+
+## 제약 조건
+C#에서 제네릭 제약조건은 `where T : ...` 구문으로 사용 가능합니다. 
+
+- class
+   - non-nullable 참조형 타입만 가능
+   - T가 참조형이라는 것을 확실히 해서 null 대입, 멤버 접근 등을 안전하게 작성할 수 있게 함
+   - ```cs
+     class MyClass<T> where T : class {}
+     ```
+
+- class?
+   - nullable 여부와 관계 없이 참조형 타입 가능
+   - C# 8부터 사용 가능
+   - ```cs
+     class MyClass<T> where T : class?{}
+     ```
+- notnull
+   - nullable이 아닌 타입만 허용
+   - C# 8부터 사용 가능
+   - ```cs
+     class MyClass<T> where T : notnull{}
+     ```
+
+# Nullable 컨텍스트
