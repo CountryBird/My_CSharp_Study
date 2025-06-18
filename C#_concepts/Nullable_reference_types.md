@@ -189,3 +189,71 @@ C#에서 제네릭 제약조건은 `where T : ...` 구문으로 사용 가능합
      ```
 
 # Nullable 컨텍스트
+Nullable 컨텍스트는     
+nullable 참조 타입 주석이 처리되는 방법과 null-state 분석을 통해 생성되는 경고를 결정합니다.   
+Nullable 컨텍스트에는 _문법_, _경고_ 설정의 2가지 플래그 설정이 가능합니다.    
+
+.NET 6, C# 10 이전까지는 _문법_, _경고_ 설정은 사용하지 않도록 설정되며,  
+이후 버전 부터는 두 설정 모두 활성화 됩니다.   
+
+이전 버전이 해당 설정을 사용하지 않는 이유는, 이전 버전의 별도 처리 없이 사용을 위함인데      
+예로 명시적 참조 타입은 `not-null` 형태로 해석되고 제네릭 `class`도 이와 같은 형태로 해석되는데,     
+이전에는 이에 대해 경고를 표시하지 않았었습니다. (`class?`와 같은 문법이 후에 정립되면서)     
+이전에 `class` 만 작성하여도 경고를 주지 않았던 코드들이 발생시킬 수도 있게 되었습니다.     
+
+소규모 프로젝트의 경우 null 허용 참조 타입을 사용하도록 설정하고, 경고에 대해 수정하는 것이 쉽지만,     
+대규모 프로젝트, 다중 프로젝트 솔루션의 경우 많은 수의 경고를 해결하는 것이 쉽지 않을 수 있습니다.    
+
+`#nullable` 이라는 pragma를 사용하여 관련 설정이 가능한데 사용할 수 있는 옵션은 다음과 같습니다.     
+
+- `#nullable disable`
+   - nullable 관련 기능을 완전히 끔
+   - 문법 (annotation): X -> ex) `string`과 `string?`의 구분 X (둘 다 null 허용하던 `string`으로 간주)
+   - 경고 (warning): X -> 경고 표시 X
+   - ```cs
+     #nullable disable
+
+     string maybeNull = null; // 경고 없음
+     string? x = null;        // 의미는 있지만 효과 없음
+     ```
+ 
+- `#nullable enable`
+   - nullable 관련 기능을 완전히 사용
+   - 문법 (annotation): O -> ex) `string`과 `string?`의 구분 O
+   - 경고 (warning): O -> 경고 표시 O
+   - ```cs
+     #nullable enable
+
+     string notNull = null;   // 경고: null 할당 불가
+     string? canBeNull = null; // 허용
+     ```
+
+- `#nullable warning`
+   - 경고 관련 기능만 사용
+   - 문법 (annotation): X -> ex) `string`과 `string?`의 구분 X
+   - 경고 (warning): O -> 경고 표시 O
+   - ```cs
+     #nullable warnings
+
+     string? test = null;     // 문법상 의미 없음 (그냥 string으로 처리됨)
+     string nonNull = null;   // 경고: null 할당됨 (문법은 무시되지만 분석은 함)
+     ```
+
+- `#nullable annotation`
+   - 문법 관련 기능만 사용
+   - 문법 (annotation): O ->  ex) `string`과 `string?`의 구분 O
+   - 경고 (warning): X -> 경고 표시 X
+   - ```cs
+     #nullable annotations
+
+     string? canBeNull = null; // 경고 없음
+     string notNull = null;    // 경고 없음 
+     // 문법은 적용되지만 분석이나 검사는 하지 않음
+     ```
+
+이렇게 개별로 적용하는 방법도 있지만, `.csproj` 파일에 `<Nullable>` 요소를 사용하여 파일 전체에 대해 적용할 수도 있습니다.   
+```xml
+<Nullable>warnings</Nullable>
+```
+
+# 알려진 문제점
