@@ -262,3 +262,31 @@ Nullable 컨텍스트에는 _문법_, _경고_ 설정의 2가지 플래그 설�
 
 ## 구조체
 null을 허용하지 않는 참조 타입을 포함하는 구조에서는 default를 할당해도 경고를 표시하지 않을 수 있습니다.
+
+```cs
+using System;
+
+#nullable enable
+
+public struct Student
+{
+    public string FirstName;
+    public string? MiddleName;
+    public string LastName;
+}
+
+public static class Program
+{
+    public static void PrintStudent(Student student)
+    {
+        Console.WriteLine($"First name: {student.FirstName.ToUpper()}");
+        Console.WriteLine($"Middle name: {student.MiddleName?.ToUpper()}");
+        Console.WriteLine($"Last name: {student.LastName.ToUpper()}");
+    }
+
+    public static void Main() => PrintStudent(default);
+}
+```
+위 예제에서 PrintStudent(default)에 따라 FirstName과 LastName에는 null이 할당되지만 경고를 표시하지 않습니다.
+
+## 배열
