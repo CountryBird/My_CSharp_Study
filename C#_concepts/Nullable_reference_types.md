@@ -290,3 +290,64 @@ public static class Program
 위 예제에서 PrintStudent(default)에 따라 FirstName과 LastName에는 null이 할당되지만 경고를 표시하지 않습니다.
 
 ## 배열
+배열은 nullable 참조 타입의 알려진 문제가 되기도 합니다.      
+배열의 모든 요소가 `null`로 초기화되어도 경고를 생성하지 않습니다.    
+
+```cs
+using System;
+
+#nullable enable
+
+public static class Program
+{
+    public static void Main()
+    {
+        string[] values = new string[10];
+        string s = values[0];
+        Console.WriteLine(s.ToUpper());
+    }
+}
+```
+
+## 생성자
+클래스의 생성자는 예외를 throw한 경우에도, 클래스의 종료자를 호출합니다.   
+```cs
+public class A
+{
+    private string _name;
+    private B _b;
+
+    public A(string name)
+    {
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
+        _name = name;
+        _b = new B();
+    }
+
+  ~A()
+  {
+      Dispose();
+  }
+
+  public void Dispose()
+  {
+      _b.Dispose();
+      GC.SuppressFinalize(this);
+  }
+}
+
+public class B: IDisposable
+{
+    public void Dispose() { }
+}
+
+public void Main()
+{
+    var a = new A(string.Empty);
+}
+```
+Main문에서 `string.Empty`로 매개 변수를 할당하였기 떄문에, A의 생성자는 정상적으로 진행되지 않습니다.     
+때문에 B 객체도 생성되지 않고, 종료자의 `_b.Dispose()`가 실행될 때 `System.NullReferenceException`이 throw 됩니다.       
+
+하지만 컴파일러는 생성자 정상 완료 여부와 특정 변수가 정상적으로 초기화되었는지를       
+완벽하지 추론하지 못하기 떄문에 해당 부분에 대해서는 경고를 표시하지 않습니다.   
