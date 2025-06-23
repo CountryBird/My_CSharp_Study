@@ -30,3 +30,34 @@ NRT 기능을 사용하는 코드로 _마이그레이션_ 하기 위해서는 �
 개발이 활발한 프로젝트라면, `enable`을 기본값으로 설정하는 것이 좋습니다.    
 
 # 컨텍스트 및 경고 이해
+경고와 주석을 사용하도록 설정하는 것은,    
+컴파일러가 _참조 타입_ 과 _null 허용 여부_ 를 사용하는 방식을 제어할 수 있습니다.    
+모든 타입에는 다음 3가지 null 허용 여부 중 하나가 결정됩니다.
+
+- oblivious (무지 상태)
+: `#nullable` 기능이 비활성화된 경우, 모든 참조 타입은 oblivious 상태로 간주합니다.
+: 컴파일러는 해당 타입이 null이 가능한지 모르기 때문에, null 관련 경고가 적극적으로 발생하지 않습니다.
+
+- Nonnullable (널 불가)
+: `string`, `object`처럼, Nullable 애너테이션이 없는 타입이면서, nullable 기능은 활성화된 상태입니다.
+: null이 될 수 없는 값에 null 값을 넣으려 하면 경고가 발생합니다.
+
+- Nullable (널 허용)
+: `string?`, `MyClass?` 처럼 애너테이션이 별도로 붙은 타입입니다.
+: null을 넣을 수 있다고 간주하고, 사용 시 null 체크를 유도합니다.
+
+---
+컴파일러는 해당 null 허용 여부에 따라 경고를 생성합니다.    
+
+- oblivious: 기본적으로 경고가 없습니다.
+- nonnullable: null 값을 할당하려고 하면 경고가 발생합니다.
+- nullable: null 체크 없이 사용하면 경고가 발생합니다.
+
+---
+각 변수에는 null-state에 대한 기본 상태 또한 있습니다. 
+
+- oblivious: not-null
+- nonnullable: not-null
+- nullable: maybe-null
+
+# 경고 처리
