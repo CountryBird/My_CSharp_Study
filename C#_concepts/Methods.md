@@ -46,3 +46,32 @@ public override int Drive(int miles, int speed) =>
 그러나 **명명된 인수가 올바른 위치에 있는 경우에만** 명명된 인수 뒤에 위치 인수를 사용할 수 있음에 유념해야 합니다.    
 
 # 상속되고 재정의된 메서드
+타입 객체들은 해당 타입 내에서 명시적으로 정의한 멤버 외에,      
+기본 클래스에서 정의된 멤버를 상속하여 사용할 수 있습니다.    
+
+타입 시스템의 모든 타입이 직간접적으로 `Object` 클래스를 상속하기 때문에,     
+모든 타입은 `Equals(Object)`, `GetType()`, `ToString()`과 같은 멤버 메서드를 사용할 수 있습니다.   
+```cs
+public static void Main()
+    {
+        Person p1 = new() { FirstName = "John" };
+        Person p2 = new() { FirstName = "John" };
+        Console.WriteLine($"p1 = p2: {p1.Equals(p2)}");
+    }
+```
+
+타입 객체는 `override` 키워드를 사용하여 상속한 멤버 메서드를 재정의할 수 있습니다.     
+```cs
+public class Person
+{
+    public string FirstName = default!;
+
+    public override bool Equals(object? obj) =>
+        obj is Person p2 &&
+        FirstName.Equals(p2.FirstName);
+
+    public override int GetHashCode() => FirstName.GetHashCode();
+}
+```
+
+# 파라미터 전달
