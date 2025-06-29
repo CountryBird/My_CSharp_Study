@@ -75,3 +75,64 @@ public class Person
 ```
 
 # 파라미터 전달
+C#에서의 타입은 _값 타입_ 또는 _참조 타입_ 입니다.    
+
+## 값으로 파라미 전달
+값 타입이 메서드에 전달되는 경우 객체 자체가 아니라 _객체의 복사본_ 이 메서드에 전달됩니다.    
+따라서 메서드를 통한 객체의 변경 내용은 원래 객체에 영향을 주지 않습니다.
+```cs
+public static void Main()
+    {
+        var value = 20;
+        Console.WriteLine("In Main, value = {0}", value);
+        ModifyValue(value);
+        Console.WriteLine("Back in Main, value = {0}", value);
+    }
+
+    static void ModifyValue(int i)
+    {
+        i = 30;
+        Console.WriteLine("In ModifyValue, parameter value = {0}", i);
+        return;
+    }
+//      In Main, value = 20
+//      In ModifyValue, parameter value = 30
+//      Back in Main, value = 20
+```
+
+참조 타입의 객체가 메서드에 전달되는 경우 _객체에 대한 참조 값_ 이 전달됩니다.    
+따라서 메서드를 통한 객체의 변경은 참조 주소를 찾아가서 변경을 하는 형태가 되기 때문에, 원래 객체에 영향을 줍니다.   
+```cs
+public static void Main()
+    {
+        var rt = new SampleRefType { value = 44 };
+        ModifyObject(rt);
+        Console.WriteLine(rt.value);
+    }
+
+    static void ModifyObject(SampleRefType obj) => obj.value = 33;
+```
+
+## 참조로 파라미터 전달
+메서드의 인수 값을 변경하고 이후 반환하는 용도로 사용하기 위해, 참조로 파라미터를 전달합니다.   
+참조로 파라미터를 전달하려면 `ref` 또는 `out` 키워드를 사용합니다.     
+(`in` 키워드 또한 참조로 값을 전달하지만 읽기 전용으로 값을 넘기기 때문에 현재 목적에서는 사용하지 않습니다.)    
+
+```cs
+public static void Main()
+    {
+        var value = 20;
+        Console.WriteLine("In Main, value = {0}", value);
+        ModifyValue(ref value);
+        Console.WriteLine("Back in Main, value = {0}", value);
+    }
+
+    private static void ModifyValue(ref int i)
+    {
+        i = 30;
+        Console.WriteLine("In ModifyValue, parameter value = {0}", i);
+        return;
+    }
+```
+
+## 컬렉션 파라미터
