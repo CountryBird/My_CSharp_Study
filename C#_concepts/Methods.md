@@ -136,3 +136,47 @@ public static void Main()
 ```
 
 ## 컬렉션 파라미터
+경우에 따라, 메서드의 인수 개수를 정확히 맞추는 것은 어려울 수 있습니다.     
+`params` 키워드를 사용하여 파라미터가 컬렉션임을 나타내면, 가변 개수의 인수를 사용하여 메서드를 호출할 수 있습니다.    
+해당 키워드로 지정된 파라미터는 _컬렉션 타입_ 이어야 하며, 파라미터 목록 중 마지막에 위치해야 합니다.     
+
+`params` 파라미터에 대해 다음과 같은 방식으로 메서드를 호출할 수 있습니다.
+- 원하는 개수의 요소를 포함하는 적절한 타입의 컬렉션을 전달합니다.
+- 적절한 타입의 개별 인수를 쉼표로 구분해 메서드에 전달합니다.
+- null을 넘겨줍니다.
+- 인수를 넣지 않습니다.
+
+**그냥 컬렉션 객체를 넘기는 것과의 차이는, 호출 과정 중 컬렉션 객체를 만들지 않아도 된다는 점이 있습니다.**       
+
+다음과 같이 정의된 `GetVowels` 메서드에 대해서,
+```cs
+static string GetVowels(params IEnumerable<string>? input)
+{
+        if (input == null || !input.Any())
+        {
+            return string.Empty;
+        }
+
+        char[] vowels = ['A', 'E', 'I', 'O', 'U'];
+        return string.Concat(
+            input.SelectMany(
+                word => word.Where(letter => vowels.Contains(char.ToUpper(letter)))));
+}
+```
+
+개발자는 다음과 같은 4가지 방식으로 파라미터를 넣을 수 있습니다.
+```cs
+string fromArray = GetVowels(["apple", "banana", "pear"]);
+Console.WriteLine($"Vowels from collection expression: '{fromArray}'");
+
+string fromMultipleArguments = GetVowels("apple", "banana", "pear");
+Console.WriteLine($"Vowels from multiple arguments: '{fromMultipleArguments}'");
+
+string fromNull = GetVowels(null);
+Console.WriteLine($"Vowels from null: '{fromNull}'");
+
+string fromNoValue = GetVowels();
+Console.WriteLine($"Vowels from no value: '{fromNoValue}'");
+```
+
+# 선택적 파라미터 및 인수
