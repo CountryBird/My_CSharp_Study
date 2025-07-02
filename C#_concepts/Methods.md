@@ -285,12 +285,63 @@ void Calculate(int x, int y, short z = 0);
 # 반환 값
 메서드는 호출자에 값을 반환할 수 있습니다.  
 
-반환 타입이 `void`가 아니면 메서드는  `return` 키워드를 사용하여 값을 반환할 수 있습니다.     
+- 반환 타입이 `void`가 아니면 메서드는  `return` 키워드를 사용하여 값을 반환할 수 있습니다.     
 
-`return` 키워드와 그 뒤에 반환 타입과 일치하는 객체로 메서드 호출자에 해당 값을 반환합니다. 
+- `return` 키워드와 그 뒤에 반환 타입과 일치하는 객체로 메서드 호출자에 해당 값을 반환합니다. 
 
-`void`가 아닌 메서드의 경우 반환 값을 반드시 반환할 필요가 있습니다. 
-또한 `return` 키워드는 메서드 실행을 중지합니다.
+- `void`가 아닌 메서드의 경우 반환 값을 반드시 반환할 필요가 있습니다.      
 
-반환 타입이 `void`이면 값이 없는 `return` 문을 사용하여 메서드 실행을 중지할 수 있습니다. `return` 키워드가 없으면 메서드는 코드 블록 끝에 도달할 때 실행을 중지합니다.
+- `return` 키워드는 메서드 실행을 중지합니다.       
+반환 타입이 `void`이면 값이 없는 `return` 문을 사용하여 메서드 실행을 중지할 수 있습니다.      
+`return` 키워드가 없으면 메서드는 코드 블록 끝에 도달할 때 실행을 중지합니다.
 
+- 메서드는 `return`을 사용해 블럭 형식의 본문 내용을 작성하는 방법이 있고,    
+식 형식의 본문 내용을 작성하는 방법도 있습니다.   
+```cs
+public int AddTwoNumbers(int number1, int number2)
+{
+        return number1 + number2;
+}
+
+public int AddTwoNumbersExperssion(int number1, int number2) => number1 + number2;
+``` 
+
+- 메서드는 반환된 값을 변수에 할당할 수 있으며, 메서드 호출 자체를 또 다른 메서드의 인자로 사용할 수 있습니다.
+
+- 메서드에서 둘 이상의 값을 반환하는 경우도 있습니다.
+_튜플_ 또는 _튜플 리터럴_ 을 사용하여 여러 값을 반환합니다.
+튜플은 **튜플 요소의 타입만을 정의**하는 것이고, 튜플 리터럴은 **튜플 요소의 이름을 지정하는 형식**이라 생각하면 됩니다.
+
+```cs
+public (string, string, string, int) GetPersonalInfo1(string id)
+{
+    PersonInfo per = PersonInfo.RetrieveInfoById(id);
+    return (per.FirstName, per.MiddleName, per.LastName, per.Age);
+}
+// 튜플으로 반환 (string, string, string, int)
+
+public (string FName, string MName, string LName, int Age) GetPersonalInfo2(string id)
+{
+    PersonInfo per = PersonInfo.RetrieveInfoById(id);
+    return (per.FirstName, per.MiddleName, per.LastName, per.Age);
+}
+// 튜플 리터럴로 반환 (string FName, string MName, string LName, int Age)
+```
+위와 같이 반환 타입에 대해 정의할 때 차이가 나며,
+
+```cs
+var person = GetPersonalInfo1("111111111");
+Console.WriteLine($"{person.Item1} {person.Item3}: age = {person.Item4}");
+
+var person = GetPersonalInfo("111111111");
+Console.WriteLine($"{person.FName} {person.LName}: age = {person.Age}");
+```
+사용 시 튜플은 `Item`이라는 명칭에 차례대로 숫자가 붙고,     
+튜플 리터럴은 작성한 명칭으로 선언된다는 것을 확인할 수 있습니다.   
+
+- 메서드가 배열을 파라미터로 사용하고, 해당 배열의 내부 값을 수정하는 경우,
+작업 후 메서드가 배열을 반환할 필요가 없습니다.
+배열의 포인터를 참조 값으로 하여 전달하고, 이 때문에 원본에 접근하는 개념이기 때문에
+파라미터로 받은 배열을 수정하는 것이 원본을 수정하는 것과 같기 때문입니다.
+
+ # 확장 메서드
