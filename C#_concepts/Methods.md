@@ -353,3 +353,40 @@ Console.WriteLine($"{person.FName} {person.LName}: age = {person.Age}");
 : 구조체, 열거형의 상속, `sealed` 클래스에느 이러한 방식으로 추가할 수 없습니다.
 
 # 비동기 메서드
+비동기 기능을 사용하면, 명시적으로 콜백을 사용하거나 복잡한 코드 분할 과정 없이도 비동기 메서드를 호출할 수 있습니다.    
+
+`async`를 추가하여 메서드를 표시하는 경우 `await`를 사용할 수 있습니다.    
+비동기 메서드 내에서 `await` 식에 도달하면 대기 중인 작업이 완료되지 않은 경우, 메서드의 진행이 중단되게 할 수 있습니다.    
+
+비동기 메서드는 보통 반환 타입이 `Task`, `Task<T>`, `IAsyncEnumberable<T>`, `void` 입니다.   
+`void`의 경우 일반적인 비동기 메서드에는 사용되지 않으며, 이벤트 처리기를 정의하는 데 사용됩니다.   
+
+```cs
+class Program
+{
+    static Task Main() => DoSomethingAsync();
+
+    static async Task DoSomethingAsync()
+    {
+        Task<int> delayTask = DelayAsync();
+        int result = await delayTask;
+
+        // 위의 두 줄은 아래 코드로 간소화해서 작성 가능합니다. 
+        //int result = await DelayAsync();
+
+        Console.WriteLine($"Result: {result}");
+    }
+
+    static async Task<int> DelayAsync()
+    {
+        await Task.Delay(100);
+        return 5;
+    }
+}
+```
+위와 같이 반환 타입이 존재하는 경우는 `Task<T>`, 그렇지 않은 경우 `Task`로 작성합니다.   
+
+비동기 메서드는 `in`, `ref`, `out`와 같은 참조 매개변수를 선언할 수 없지만,     
+이러한 매개변수가 있는 메서드를 호출은 가능합니다.
+
+# 표현식 멤버
