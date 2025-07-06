@@ -389,4 +389,23 @@ class Program
 비동기 메서드는 `in`, `ref`, `out`와 같은 참조 매개변수를 선언할 수 없지만,     
 이러한 매개변수가 있는 메서드를 호출은 가능합니다.
 
-# 표현식 멤버
+# 식 본문 구문
+메서드 정의는 표현식의 결과와 함께 즉시 반환되거나 메서드의 본문으로 단일 문이 있는 경우가 일반적입니다.      
+`=>` 를 사용하여 이러한 메서드를 정의하는 구문 바로 가기 형태를 만들 수 있습니다.    
+
+코드가 짧고 단순할 경우, 일반적인 중괄호 `{}` 방식 대신 `=>` 연산자를 사용해 간결하게 작성할 수 있습니다.
+```cs
+public Point Move(int dx, int dy) => new Point(x + dx, y + dy);
+public void Print() => Console.WriteLine(First + " " + Last);
+public static Complex operator +(Complex a, Complex b) => a.Add(b);
+public string Name => First + " " + Last;
+public Customer this[long id] => store.LookupCustomer(id);
+```
+`void`와 `async`의 경우, 표현식문만 허용됩니다. (단순히 실행되는 한 줄 짜리 문장을 의미)
+
+# 이터레이터
+이터레이터는 배열과 리스트 같은 컬렉션에 대해 반복 작업을 수행합니다.          
+`yield return`문을 통해 각 요소를 한 번에 하나씩 반환합니다.    
+`yield return`문에 도달하면 호출자가 시퀀스의 다음 요소를 요청할 수 있돌고 현재 위치가 기억됩니다.  
+
+반환 타입은 `IEnumerable`, `IEnumerable<T>`, `IAsyncEnumberable<T>`, `IEnumerator`, `IEnumerator<T>`일 수 있습니다.   
