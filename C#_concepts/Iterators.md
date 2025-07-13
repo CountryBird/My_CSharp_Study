@@ -31,3 +31,65 @@ await foreach(var item in asyncSequence)
 ```
 
 # 이터레이터 메서드를 사용하여 소스 열거
+열거를 위한 데이터 시퀀스를 생성할 수 있습니다.   
+이러한 메서드는 _이터레이터 메서드_ 라고 부릅니다.   
+
+`yield return`의 형태를 사용하는데,   
+값을 하나씩 외부로 내보내고, 다음 호출이 오면 그 다음에 이어서 실행해주는 역할을 합니다.   
+
+데이터가 크거나, 무한 시퀀스를 다루는 경우       
+전체 컬렉션을 메모리에 올리지 않기 때문에 성능적인 이득을 볼 수 있습니다.   
+```cs
+public IEnumerable<int> GetSetsOfNumbers()
+{
+    int index = 0;
+    while (index < 10)
+        yield return index++;
+
+    yield return 50;
+
+    index = 100;
+    while (index < 110)
+        yield return index++;
+}
+```
+
+사용 경우에 따라, 이터레이터 메서드에 비동기 개념을 접목해 사용할 수 있습니다.   
+이러한 경우 반환 타입을 `IEnumerable<T>`에서 `IAsyncEnumerable<T>`로 변환할 필요가 있습니다.
+```cs
+public async IAsyncEnumerable<int> GetSetsOfNumbersAsync()
+{
+    int index = 0;
+    while (index < 10)
+        yield return index++;
+
+    await Task.Delay(500);
+
+    yield return 50;
+
+    await Task.Delay(500);
+
+    index = 100;
+    while (index < 110)
+        yield return index++;
+}
+```
+---
+이터레이터 메서드를 사용할 때 주의할 점이 하나 있는데,   
+동일한 메서드에서 `return`과 `yield return`을 동시에 사용할 수 없습니다.   
+```cs
+public IEnumerable<int> GetSingleDigitNumbers()
+{
+    int index = 0;
+    while (index < 10)
+        yield return index++;
+
+    yield return 50;
+
+    // 컴파일 에러 발생
+    var items = new int[] {100, 101, 102, 103, 104, 105, 106, 107, 108, 109 };
+    return items;
+}
+```
+
+# foreach 심층 분석
