@@ -93,3 +93,75 @@ public IEnumerable<int> GetSingleDigitNumbers()
 ```
 
 # foreach 심층 분석
+`foreach`문은 `IEnumerable<T>`와 `IEnumerator<T>` 인터페이스를 통해   
+내부적으로 컬렉션의 모든 요소를 반복하는 관용구로 확장시킵니다.    
+또한 이 방법을 통해 개발자가 리소스를 관리하지 않아 발생하는 오류도 최소화합니다.    
+
+예를 들어 아래의 코드는,
+```cs
+IEnumerator<int> enumerator = collection.GetEnumerator();
+while (enumerator.MoveNext())
+{
+    var item = enumerator.Current;
+    Console.WriteLine(item.ToString());
+}
+```
+
+```cs
+{
+    var enumerator = collection.GetEnumerator();
+    try
+    {
+        while (enumerator.MoveNext())
+        {
+            var item = enumerator.Current;
+            Console.WriteLine(item.ToString());
+        }
+    }
+    finally
+    {
+        // dispose of enumerator.
+    }
+}
+```
+아래의 코드로 확장되어 자체적인 Dispose를 실행하고 이와 관련된 오류도 방지합니다.  
+
+Dispose에 관한 코드 확장은, 컬렉션의 타입에 따라 일부 차이가 생기는데,     
+기본 컬렉션에 대해서는 
+```cs
+finally
+{
+   (enumerator as IDisposable)?.Dispose();
+}
+```
+`enumerator`가 `IDisposable`을 구현했는지 여부를 런타임에서 확인합니다. 
+
+비동기 컬렉션에 대해서는
+```cs
+finally
+{
+    if (enumerator is IAsyncDisposable asyncDisposable)
+        await asyncDisposable.DisposeAsync();
+}
+```
+`enumerator`가 `IAsyncDisposable`을 구현했는지 여부를 런타임에서 확인합니다. 
+
+만약 `enumerator`가 `sealed` 타입이고    
+`IDisposable` 또는 `IAsyncDisposable`로의 암시적 변환이 불가능한 경우는
+```cs
+finally
+{
+}
+```
+`sealed` 되어 있고, 변환도 불가능한 것을 컴파일러가 알기 때문에 아무런 코드도 추가하지 않습니다.
+
+값 타입이고 암시적인 변환이 가능한 경우는
+```c
+finally
+{
+   ((IDisposable)enumerator).Dispose();
+}
+```
+박싱 없이 정적 타입 변환으로 `Dispose()`를 호출해 변환합니다.   
+
+위와 같은 형식들로 변환된다는 것을 알 수 있습니다.
