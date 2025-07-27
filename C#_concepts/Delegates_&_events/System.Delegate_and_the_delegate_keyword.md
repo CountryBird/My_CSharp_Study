@@ -52,3 +52,34 @@ int result = comparator(left, right);
 메서드가 연결되지 않은 경우 `NullReferenceExcption`가 발생할 수 있습니다.   
 
 # 호출 대상 할당, 추가 및 제거
+대리자를 사용하기 위해서는 메서드를 할당해야 합니다.      
+할당하는 메서드는 정의된 대리자와 같은 타입을 사용해야 합니다.   
+
+```cs
+private static int CompareLength(string left, string right)
+=> left.Length.CompareTo(right.Length);
+```
+위와 같은 형식으로 메서드를 정의할 수 있습니다.      
+이는 다른 메서드 선언과 크게 다를 바가 없으며, 실제로 정적 메서드를 선언하는 코드입니다.   
+
+```cs
+phrases.Sort(CompareLength);
+```
+선언된 메서드에 대해 괄호를 사용하지 않는 방법을 통해
+**메서드를 참조하여 사용할 수 있습니다.**       
+이는 해당 메서드를 델리게이트로 받아 사용함을 의미합니다.    
+
+```cs
+Comparison<string> comparer = CompareLength;
+phrases.Sort(comparer);
+```
+위의 코드를 통해서도 델리게이트로 사용할 수 있습니다.    
+이전의 코드와 비교하였을 때, 덜 간결하지만 명확하게 델리게이트를 선언할 수 있습니다.
+
+```cs
+Comparison<string> comparer = (left, right) => left.Length.CompareTo(right.Length);
+phrases.Sort(comparer);
+```
+코드가 복잡하지 않은 경우 람다 식을 사용해 대리자를 사용할 수 있습니다.    
+
+# Delegate 및 MulticastDelegate 클래스
