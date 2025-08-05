@@ -83,3 +83,13 @@ phrases.Sort(comparer);
 코드가 복잡하지 않은 경우 람다 식을 사용해 대리자를 사용할 수 있습니다.    
 
 # Delegate 및 MulticastDelegate 클래스
+대리자 기능은 .NET Framework의 `Delegate`와 `MulticastDelegate`의 두 클래스를 기반으로 빌드됩니다.      
+이러한 클래스를 직접적으로 다루지는 않고, 기반으로 사용됩니다.    
+
+`System.Delegate`와 `System.MulticastDelegate`는 직접적으로 사용되는 대리자 타입은 아니고,    
+C# 언어 중에서 `delegate`를 사용하여 상속받아 사용할 수 있습니다.   
+
+`delegate` 키워드를 사용하여 대리자 타입을 선언하면,      
+C# 컴파일러는 자동으로 `MulticastDelegate`에서 클래스를 파생하여 사용합니다.      
+
+## 왜 이 디자인인가요?
