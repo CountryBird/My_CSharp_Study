@@ -27,3 +27,37 @@ public static IEnumerable<TSource> Where<TSource> (this IEnumerable<TSource> sou
 나중에 추가될 수 있는 저장 메커니즘을 지원할 수 있도록 합니다.    
 
 # 첫 번째 구현
+가장 기본적이고 초기적으로 생각할 수 있는 방법으로 시작해보겠습니다.       
+```cs
+public static class Logger
+{
+  public static Action<string>? WriteMessage;
+  public static void LogMessage(string msg)
+  {
+    if (WriteMessage is not null)
+    {
+      WriteMessage(msg);
+    }
+  }
+}
+```
+정적 클래스가 멤버로 대리자 하나를 가지고,        
+이를 실행하는 형태입니다.     
+
+```cs
+public static class LoggingMethods
+{
+  public static void LogToConsole(string message)
+  {
+    Console.Error.WriteLine(message);
+  }
+}
+```
+이는 콘솔에 메시지를 쓰는 메서드에 대한 구현입니다.    
+
+마지막으로, Logger에 연결된 대리자에 이를 연결하여 설정합니다.
+```cs
+Logger.WriteMessage += LoggingMethods.LogToConsole;
+```
+
+# 관행
