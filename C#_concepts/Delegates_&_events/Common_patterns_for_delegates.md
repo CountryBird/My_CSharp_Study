@@ -69,3 +69,37 @@ Logger.WriteMessage += LoggingMethods.LogToConsole;
 사용되는 인터페이스는 최소화되고 유연합니다.     
 
 # 출력 타입 지정
+로그 클래스가 더 구조화된 메시지를 만들 수 있게, 메서드에 몇 가지 인수를 추가한 `LogMessage()`를 추가해보겠습니다.   
+```cs
+public enum Severity
+{
+    Verbose,
+    Trace,
+    Information,
+    Warning,
+    Error,
+    Critical
+}
+```
+이는 로그의 _수준_ 을 나타내는 enum 값으로, 이 후 `LogMessage()`에서 필터링할 때 사용됩니다.    
+
+```cs
+public static class Logger
+{
+    public static Action<string>? WriteMessage;
+
+    public static Severity LogLevel { get; set; } = Severity.Warning;
+
+    public static void LogMessage(Severity s, string component, string msg)
+    {
+        if (s < LogLevel)
+            return;
+
+        var outputMsg = $"{DateTime.Now}\t{s}\t{component}\t{msg}";
+        if (WriteMessage is not null)
+            WriteMessage(outputMsg);
+    }
+}
+```
+
+## 관행
