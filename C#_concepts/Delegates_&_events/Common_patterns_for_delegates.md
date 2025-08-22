@@ -110,3 +110,54 @@ public static class Logger
 유연하게 업데이트할 수 있습니다.     
 
 # 두 번째 출력 엔진 빌드
+현재까지 로그 구성 요소가 성공적으로 구상되고 있습니다.       
+이에 확장하여, _파일_ 에 메시지를 기록하는 출력 엔진을 추가하고자 합니다.    
+
+파일 작업을 캡슐화하고 각 쓰기 후에 파일이 항상 닫혀 있는지 확인하는 클래스입니다.     
+```cs
+public class FileLogger
+{
+    private readonly string logPath;
+    public FileLogger(string path)
+    {
+        logPath = path;
+        Logger.WriteMessage += LogMessage;
+    }
+
+    public void DetachLog() => Logger.WriteMessage -= LogMessage;
+    // make sure this can't throw.
+    private void LogMessage(string msg)
+    {
+        try
+        {
+            using (var log = File.AppendText(logPath))
+            {
+                log.WriteLine(msg);
+                log.Flush();
+            }
+        }
+        catch (Exception)
+        {
+            // Hmm. We caught an exception while
+            // logging. We can't really log the
+            // problem (since it's the log that's failing).
+            // So, while normally, catching an exception
+            // and doing nothing isn't wise, it's really the
+            // only reasonable option here.
+        }
+    }
+}
+```
+
+이 클래스는 인스턴스화할 수 있으며, LogMessage 메서드를 로거 구성 요소에 연결합니다.      
+또한 콘솔 및 파일 둘다에 메시지를 생성할 수 있습니다.    
+```cs
+var file = new FileLogger("log.txt");
+Logger.WriteMessage += LoggingMethods.LogToConsole;
+```
+물론, 문제 없이 대리자 중 하나를 제거하는 것도 가능합니다.    
+```cs
+Logger.WriteMessage -= LoggingMethods.LogToConsole;
+```
+
+## 관행
