@@ -173,3 +173,18 @@ Logger.WriteMessage -= LoggingMethods.LogToConsole;
 `IDisposable`을 상속함으로써 자원 해제 시점을 명시적으로 제어할 수 있습니다.     
 
 # Null 대리자 처리
+출력 메커니즘이 선택되지 않은 경우, 예상치 못한 예외가 발생하지 않도록 `LogMessage`를 업데이트 할 수 있습니다.       
+현재 구현은 대리자에 호출 목록이 연결되지 않은 경우 `NullReferenceException`을 발생시킵니다.      
+
+`Delegate.Invoke()`를 사용해 null 조건부 연산을 쉽게 사용 가능합니다.         
+
+```cs
+public static void LogMessage(string msg)
+{
+    WriteMessage?.Invoke(msg);
+}
+```
+
+왼쪽 피연산자(`?.`) null인 경우, null 조건부 연산자는 처리되지 않습니다.       
+
+# 사례 요약
