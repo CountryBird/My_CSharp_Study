@@ -188,3 +188,12 @@ public static void LogMessage(string msg)
 왼쪽 피연산자(`?.`) null인 경우, null 조건부 연산자는 처리되지 않습니다.       
 
 # 사례 요약
+디자인에서 대리자를 사용하면 구성 요소가 느슨하게 결합됩니다.       
+
+일반적으로 로거를 만든다고 하면, FileLogger, DbLogger, ConsoleLogger 등        
+각 클래스를 만들어서 Logger가 직접 알아야한다는 문제가 생기고,        
+이로 인해 Logger가 특정 클래스에 강하게 묶이는 문제가 생깁니다.      
+
+대신 delegate를 사용하면 Logger는 로그 메시지를 출력하는 메서드 하나만 알면 됩니다.      
+
+이러한 디자인을 통해 느슨한 결합, 확장성, 안정성에서 이득을 얻을 수 있습니다.     
