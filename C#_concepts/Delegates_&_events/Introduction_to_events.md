@@ -23,3 +23,33 @@
 또한 이벤트 구독자가 연결되지 않은 경우도 지원해야 합니다.
 
 # 이벤트에 대한 언어 지원
+이벤트를 정의하고 이벤트ㅔ서 구독 또는 구독 취소하는 구문은 대리자 구문의 확장 형태입니다.      
+`event` 키워드를 통해 이벤트를 정의합니다.     
+
+```cs
+public event EventHandler<FileFoundArgs>? FileFound;
+```
+해당 예제에서 `EventHandler<FileListArgs>` 타입은 대리자 타입이어야 합니다.      
+전형적으로 이벤트 대리자 유형은 void를 반환하며 선언을 과거 시제의 동사 구문을 통해 합니다.     
+또한 종종 계속적으로 사용되는 유형도 있는데, 이 때는 ~ing 구문을 사용합니다.     
+
+이벤트를 발생시키려는 경우, `Invoke`문을 사용할 수 있습니다.      
+```cs
+FileFound?.Invoke(this, new FileFoundArgs(file));
+```
+`?.` 연산자를 사용하면, 해당 이벤트에 대한 구독자가 있을 때는 정상 실행,       
+그렇지 않을 때는 발생시키지 않도록 할 수 있습니다.      
+
+```cs
+var fileLister = new FileSearcher();
+int filesFound = 0;
+
+EventHandler<FileFoundArgs> onFileFound = (sender, eventArgs) =>
+{
+    Console.WriteLine(eventArgs.FoundFile);
+    filesFound++;
+};
+
+fileLister.FileFound += onFileFound;
+```
+`+=` 연산자를 사용하여 이벤트를 구독할 수 있습니다.     
