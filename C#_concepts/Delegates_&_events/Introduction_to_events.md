@@ -53,3 +53,9 @@ EventHandler<FileFoundArgs> onFileFound = (sender, eventArgs) =>
 fileLister.FileFound += onFileFound;
 ```
 `+=` 연산자를 사용하여 이벤트를 구독할 수 있습니다.     
+
+이벤트 처리기를 나타내는 식에 대한 지역 변수를 선언하는 것이 중요합니다.       
+그러면 구독 취소하는 경우 처리기를 제거합니다.      
+
+람다 식 본문만을 통해 구독을 한 경우에는 이벤트가 해제되지 않습니다.       
+따라서 람다식을 통해 구독을 구현하기 위해서는 변수에 담아둘 필요가 있습니다.     
