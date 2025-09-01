@@ -46,3 +46,27 @@ public class FileSearcher
 설정한 이벤트를 `Invoke`를 통해 이벤트를 발생시킬 수 있습니다.      
 
 # 필드와 유사한 이벤트를 정의하고 발생시키기
+이벤트를 클래스에 추가하는 가장 간단한 방법은 이전 예제와 같이 해당 이벤트를 public 필드로 선언하는 것입니다.      
+```cs
+public event EventHandler<FileFoundArgs>? FileFound;
+```
+해당 코드는 접근 수준이 잘못된 것처럼 보이지만, 컴파일러가 래퍼를 만들어 이벤트 개체에 안전한 방법으로 엑세스할 수 있도록 합니다.     
+필드 내에서는 추가 및 제거 작업만을 할 수 있습니다.      
+```cs
+var fileLister = new FileSearcher();
+int filesFound = 0;
+
+EventHandler<FileFoundArgs> onFileFound = (sender, eventArgs) =>
+{
+    Console.WriteLine(eventArgs.FoundFile);
+    filesFound++;
+};
+
+fileLister.FileFound += onFileFound;
+
+fileLister.FileFound -= onFileFound;
+```
+람다 식을 사용해서 `remove`를 실행할 경우에는 처리기 해제가 제대로 작동하지 않습니다.      
+또한 클래스 외부의 코드는 이벤트를 발생시키거나 다른 작업을 수행할 수 없습니다.    
+
+# 이벤트 구독자에서 값 반환
