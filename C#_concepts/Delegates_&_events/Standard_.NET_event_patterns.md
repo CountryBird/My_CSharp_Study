@@ -70,3 +70,52 @@ fileLister.FileFound -= onFileFound;
 또한 클래스 외부의 코드는 이벤트를 발생시키거나 다른 작업을 수행할 수 없습니다.    
 
 # 이벤트 구독자에서 값 반환
+기존 기능에 이어, _취소_ 기능을 추가해보도록 하겠습니다.      
+_Found_ 이벤트를 발생시킬 때 수신기는 프로세스를 중지하며, 마지막으로 찾은 파일을 반환할 수 있어야 합니다.   
+
+이벤트 처리기는 값을 반환하지 않으므로 또 다른 방법이 필요한데,       
+`EventArgs` 객체를 사용하여 이벤트 구독자가 취소를 전달하는데 사용할 수 있습니다.    
+
+이 시점에서 2가지 패턴을 구상할 수 있는데,      
+첫 번째 패턴은 임의의 구독자 한 명이 작업을 취소하면 모든 구독자에게 해당 이벤트를 발생시키며,         
+임의의 구독자 한 명이 작업을 재개하면 모든 구독자 또한 작업을 재개하는 패턴입니다.     
+두 번째 패턴은 모든 구독자가 작업 취소를 원하는 경우에만 작업을 취소하는 패턴입니다.      
+
+첫 번째 패턴에 대한 구현은 다음과 같습니다.     
+```cs
+public class FileFoundArgs : EventArgs
+{
+    public string FoundFile { get; }
+    public bool CancelRequested { get; set; }
+
+    public FileFoundArgs(string fileName) => FoundFile = fileName;
+}
+```
+
+이벤트를 발생 시킨 후 플래그를 확인하여 취소가 요청되었는지 확인합니다.    
+```cs
+private void SearchDirectory(string directory, string searchPattern)
+{
+    foreach (var file in Directory.EnumerateFiles(directory, searchPattern))
+    {
+        var args = new FileFoundArgs(file);
+        FileFound?.Invoke(this, args);
+        if (args.CancelRequested)
+            break;
+    }
+}
+```
+
+이러한 패턴의 장점은 확장성입니다.       
+새 취소 프로토콜을 사용하지 않으려면 구독자 코드에 업데이트를 하지 않으면 되며, 해당 코드를 사용해도 문제가 발생하지 않습니다.    
+
+첫 번째 파일을 찾으면 취소가 요청되도록 하는 구독자 코드는 다음과 같습니다. 
+```cs
+EventHandler<FileFoundArgs> onFileFound = (sender, eventArgs) =>
+{
+    Console.WriteLine(eventArgs.FoundFile);
+    eventArgs.CancelRequested = true;
+};
+```
+
+# 다른 이벤트 선언 추가
