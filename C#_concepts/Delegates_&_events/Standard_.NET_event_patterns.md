@@ -119,3 +119,83 @@ EventHandler<FileFoundArgs> onFileFound = (sender, eventArgs) =>
 ```
 
 # 다른 이벤트 선언 추가
+파일 검색에서 모든 하위 디렉터리를 트래버스하는 `Search` 메서드를 추가해보도록 하겠습니다.      
+당연히, 해당 작업은 많은 하위 디렉터리가 있는 환경에서는 긴 작업이 될 수 있습니다.       
+
+각각의 새 디렉터리 검색이 시작될 때 발생되는 이벤트를 추가하면,       
+구독자가 진행 상황을 추적하고 진행 상황을 업데이트할 수 있습니다.        
+
+```cs
+internal class SearchDirectoryArgs : EventArgs
+{
+    internal string CurrentSearchDirectory { get; }
+    internal int TotalDirs { get; }
+    internal int CompletedDirs { get; }
+
+    internal SearchDirectoryArgs(string dir, int totalDirs, int completedDirs)
+    {
+        CurrentSearchDirectory = dir;
+        TotalDirs = totalDirs;
+        CompletedDirs = completedDirs;
+    }
+}
+```
+
+이벤트 선언 시 속성 스타일 구문을 사용하여 `add`, `remove` 접근자를 직접 정의합니다.       
+기존의 필드 이벤트와 달리, 명시적으로 핸들러를 추가/제거할 수 있습니다.       
+또한, 구독/해제 시 추가적인 로직 처리가 가능하다는 차이가 있습니다.     
+```cs
+internal event EventHandler<SearchDirectoryArgs> DirectoryChanged
+{
+    add { _directoryChanged += value; }
+    remove { _directoryChanged -= value; }
+}
+private EventHandler<SearchDirectoryArgs>? _directoryChanged;
+```
+
+서브 디렉터리까지 탐색하는 Search 메서드 오버로드를 추가합니다.         
+`searchSubDirs`를 통해 모든 하위 디렉터리를 탐색할지 여부도 설정 가능합니다. (default: false)
+```cs
+public void Search(string directory, string searchPattern, bool searchSubDirs = false)
+{
+    if (searchSubDirs)
+    {
+        var allDirectories = Directory.GetDirectories(directory, "*.*", SearchOption.AllDirectories);
+        var completedDirs = 0;
+        var totalDirs = allDirectories.Length + 1;
+        foreach (var dir in allDirectories)
+        {
+            _directoryChanged?.Invoke(this, new (dir, totalDirs, completedDirs++));
+            // Search 'dir' and its subdirectories for files that match the search pattern:
+            SearchDirectory(dir, searchPattern);
+        }
+        // Include the Current Directory:
+        _directoryChanged?.Invoke(this, new (directory, totalDirs, completedDirs++));
+        SearchDirectory(directory, searchPattern);
+    }
+    else
+    {
+        SearchDirectory(directory, searchPattern);
+    }
+}
+
+private void SearchDirectory(string directory, string searchPattern)
+{
+    foreach (var file in Directory.EnumerateFiles(directory, searchPattern))
+    {
+        var args = new FileFoundArgs(file);
+        FileFound?.Invoke(this, args);
+        if (args.CancelRequested)
+            break;
+    }
+}
+```
+마지막으로,      
+DirectoryChanged 이벤트를 구독하여, 탐색 진행 상태를 콘솔에 출력할 수 있습니다.
+```cs
+fileLister.DirectoryChanged += (sender, eventArgs) =>
+{
+    Console.Write($"Entering '{eventArgs.CurrentSearchDirectory}'.");
+    Console.WriteLine($" {eventArgs.CompletedDirs} of {eventArgs.TotalDirs} completed...");
+};
+```
