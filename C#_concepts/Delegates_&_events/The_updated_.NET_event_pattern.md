@@ -50,3 +50,21 @@ internal struct SearchDirectoryArgs
 따라서 .NET Core의 해당 변화는 **완전히 하위 호환적**인 것을 알 수 있습니다.      
 
 # 비동기 구독자를 사용하는 이벤트
+비동기 메서드는 void 반환 형식을 가질 수 있지만 권장되지 않습니다.          
+이벤트 구독자 코드가 비동기 메서드를 호출하는 경우 `async void` 형태로 호출을 해야합니다.        
+하지만 이 때, Task를 반환하지 않기 때문에 예외를 잡을 수도, await 할 수도 없습니다.    
+```cs
+worker.StartWorking += async (sender, eventArgs) =>
+{
+    try
+    {
+        await DoWorkAsync();
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Async task failure: {e.ToString()}");
+    }
+};
+```
+그래서 주로 사용하는 방식은, `async void`를 사용한 뒤, 이를 try-catch로 감싸는 패턴을 사용하는 것입니다.      
+await 하려는 부분은 반드시 try/catch로 감싸야합니다.       
