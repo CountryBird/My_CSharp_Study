@@ -22,3 +22,41 @@ latest는 이름 그대로 설치된 컴파일러가 최신 버전을 사용하�
 - `PATCH`: 하위 호환성 버그 등을 수정했을 때 번호가 증가합니다.
 
 ## MAJOR 버전 번호 
+MAJOR 버전 번호를 갱신할 수 있는 경우는 주로 다음과 같습니다.      
+
+- 공용 메서드 또는 속성 제거
+```cs
+// Version 1.0.0
+public class Calculator
+{
+    public int Add(int a, int b) => a + b;
+    public int Subtract(int a, int b) => a - b; // This method exists
+}
+
+// Version 2.0.0 - MAJOR increment required
+public class Calculator
+{
+    public int Add(int a, int b) => a + b;
+    // Subtract method removed - breaking change!
+}
+```
+
+- 메서드 서명(파라미터) 변경
+```cs
+// Version 1.0.0
+public void SaveFile(string filename) { }
+
+// Version 2.0.0 - MAJOR increment required
+public void SaveFile(string filename, bool overwrite) { } // Added required parameter
+```
+
+- 기존과 메서드 흐름이 변경되는 경우
+```cs
+// Version 1.0.0 - returns null when file not found
+public string ReadFile(string path) => File.Exists(path) ? File.ReadAllText(path) : null;
+
+// Version 2.0.0 - MAJOR increment required
+public string ReadFile(string path) => File.ReadAllText(path); // Now throws exception when file not found
+```
+
+## MINOR 버전 번호
