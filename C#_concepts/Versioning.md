@@ -23,6 +23,7 @@ latest는 이름 그대로 설치된 컴파일러가 최신 버전을 사용하�
 
 ## MAJOR 버전 번호 
 MAJOR 버전 번호를 갱신할 수 있는 경우는 주로 다음과 같습니다.      
+사용자는 이전 버전의 프로그램을 사용하지 못하게 되며, 이에 따라 업데이트가 필요합니다.        
 
 - 공용 메서드 또는 속성 제거
 ```cs
@@ -60,3 +61,42 @@ public string ReadFile(string path) => File.ReadAllText(path); // Now throws exc
 ```
 
 ## MINOR 버전 번호
+MINOR 버전 번호를 갱신할 수 있는 경우는 주로 다음과 같습니다.      
+기존 코드를 수정하지 않고 새 기능을 추가하기 때문에, 사용자가 반드시 업데이트할 필요는 없습니다.     
+
+- 새 공용 메서드 또는 속성 추가
+```cs
+// Version 1.0.0
+public class Calculator
+{
+    public int Add(int a, int b) => a + b;
+}
+
+// Version 1.1.0 - MINOR increment
+public class Calculator
+{
+    public int Add(int a, int b) => a + b;
+    public int Multiply(int a, int b) => a * b; // New method added
+}
+```
+
+- 새 오버로드 추가
+```cs
+// Version 1.0.0
+public void Log(string message) { }
+
+// Version 1.1.0 - MINOR increment
+public void Log(string message) { } // Original method unchanged
+public void Log(string message, LogLevel level) { } // New overload added
+```
+
+- 기존 메서드에 선택적 파라미터 추가
+```cs
+// Version 1.0.0
+public void SaveFile(string filename) { }
+
+// Version 1.1.0 - MINOR increment
+public void SaveFile(string filename, bool overwrite = false) { } // Optional parameter
+```
+
+## 
