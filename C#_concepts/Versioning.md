@@ -99,4 +99,40 @@ public void SaveFile(string filename) { }
 public void SaveFile(string filename, bool overwrite = false) { } // Optional parameter
 ```
 
-## 
+## PATCH 버전 번호
+PATCH 버전 번호를 갱신할 수 있는 경우는 다음과 같습니다.      
+기존의 기능을 추가, 변경 없이 문제를 해결합니다.    
+
+- 기존 메서드의 구현에서 버그 수정
+```cs
+// Version 1.0.0 - has a bug
+public int Divide(int a, int b)
+{
+    return a / b; // Bug: doesn't handle division by zero
+}
+
+// Version 1.0.1 - PATCH increment
+public int Divide(int a, int b)
+{
+    if (b == 0) throw new ArgumentException("Cannot divide by zero");
+    return a / b; // Bug fixed, behavior improved but API unchanged
+}
+```
+- API를 변경하지 않는 성능 향상
+```cs
+// Version 1.0.0
+public List<int> SortNumbers(List<int> numbers)
+{
+    return numbers.OrderBy(x => x).ToList(); // Slower implementation
+}
+
+// Version 1.0.1 - PATCH increment
+public List<int> SortNumbers(List<int> numbers)
+{
+    var result = new List<int>(numbers);
+    result.Sort(); // Faster implementation, same API
+    return result;
+}
+```
+
+## 이전 버전과의 호환성성
