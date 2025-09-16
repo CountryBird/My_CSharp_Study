@@ -161,3 +161,55 @@ public List<int> SortNumbers(List<int> numbers)
 이렇게 하면 관련으로 업데이트 사항이 있을 때 라이브러리를 다시 컴파일하지 않고도 원활한 업데이트가 가능해집니다.       
 
 # 라이브러리 소비
+다른 개발자가 만든 .NET 라이브러리를 사용하는 개발자는 라이브러리의 새로운 버전이              
+자신의 프로젝트와 호환되지 않을 가능성을 고려해야 합니다.          
+
+C#과 .NET에는 이러한 문제에 대한 기능과 기술이 마련되어있습니다.           
+
+## 어셈블리 바인딩 리디렉션
+_app.config_ 파일을 사용하여 라이브러리의 버전을 업데이트 할 수 있습니다.            
+`<bindingRedirect>` 를 추가하여 앱을 컴파일하지 않고도 새 라이브러리 버전을 사용할 수 있습니다.      
+```cs
+<dependentAssembly>
+    <assemblyIdentity name="ReferencedLibrary" publicKeyToken="32ab4ba45e0a69a1" culture="en-us" />
+    <bindingRedirect oldVersion="1.0.0" newVersion="1.0.1" />
+</dependentAssembly>
+```
+
+## new 키워드
+상속된 기본 클래스의 멤버를 숨기려면 `new` 키워드를 사용합니다.      
+이 방법을 통해 파생 클래스가 기본 클래스의 업데이트에 적절하게 대처할 수 있습니다.       
+
+```cs
+public class BaseClass
+{
+    public void MyMethod()
+    {
+        Console.WriteLine("A base method");
+    }
+}
+
+public class DerivedClass : BaseClass
+{
+    public new void MyMethod()
+    {
+        Console.WriteLine("A derived method");
+    }
+}
+
+public static void Main()
+{
+    BaseClass b = new BaseClass();
+    DerivedClass d = new DerivedClass();
+
+    b.MyMethod();
+    d.MyMethod();
+}
+```
+```console
+A base method
+A derived method
+```
+기본 클래스에 존재하는 메서드를 파생 클래스에서 `new`로 선언함으로써,          
+파생 클래스만의 동명의 다른 메서드를 만들 수 있습니다.       
+또한, `new` 키워드를 지정하지 않으면 기본적으로 숨기도록 설정되어 있습니다.
