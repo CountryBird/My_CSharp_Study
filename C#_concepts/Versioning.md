@@ -213,3 +213,76 @@ A derived method
 기본 클래스에 존재하는 메서드를 파생 클래스에서 `new`로 선언함으로써,          
 파생 클래스만의 동명의 다른 메서드를 만들 수 있습니다.       
 또한, `new` 키워드를 지정하지 않으면 기본적으로 숨기도록 설정되어 있습니다.
+
+## override 키워드
+`override` 키워드를 사용하면 파생된 구현은 기본 클래스 멤버의 구현을 숨기지 않고 _확장_ 합니다.               
+대신 기본 클래스 멤버에 `virtual` 키워드를 적용해야 합니다.         
+
+```cs
+public class MyBaseClass
+{
+    public virtual string MethodOne()
+    {
+        return "Method One";
+    }
+}
+
+public class MyDerivedClass : MyBaseClass
+{
+    public override string MethodOne()
+    {
+        return "Derived Method One";
+    }
+}
+
+public static void Main()
+{
+    MyBaseClass b = new MyBaseClass();
+    MyDerivedClass d = new MyDerivedClass();
+
+    Console.WriteLine($"Base Method One: {b.MethodOne()}");
+    Console.WriteLine($"Derived Method One: {d.MethodOne()}");
+}
+```
+```console
+Base Method One: Method One
+Derived Method One: Derived Method One
+```
+
+## new와 override의 차이
+new와 override는 비슷한 역할을 하는 것 같지만, 원리와 이로 인한 결과의 차이가 있습니다.          
+new 키워드는 컴파일 시 결정이 된다는 점, override는 실행 시 결정이 됩니다.                  
+
+이로 인해, 실제 객체가 무엇이냐에 따라 다른 결과를 만들어 낼 수 있습니다.         
+
+```cs
+class Parent
+{
+    public void Hello() => Console.WriteLine("Parent Hello"); // new 용
+    public virtual void Hi() => Console.WriteLine("Parent Hi"); // override 용
+}
+
+class Child : Parent
+{
+    public new void Hello() => Console.WriteLine("Child Hello");
+    public override void Hi() => Console.WriteLine("Child Hi");
+}
+
+```
+다음과 같이 코드가 작성되어 있다고 가정할 때,       
+참조 타입이 Parent면
+```cs
+Parent p = new Child();
+p.Hello(); // Parent Hello  ← new는 부모 타입 기준
+p.Hi();    // Child Hi     ← override는 실제 객체 기준
+```
+
+참조 타입이 Child면
+```cs
+Child c = new Child();
+c.Hello(); // Child Hello
+c.Hi();    // Child Hi
+```
+
+overrride -> 항상 파생 것이 실행 / new -> 참조 타입에 따라 달라짐               
+으로 이해하면 됩니다.
