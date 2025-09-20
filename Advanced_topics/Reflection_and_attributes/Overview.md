@@ -34,3 +34,9 @@ Console.WriteLine(info);
 ```
 
 # IL의 키워드 차이
+C#에서 중간 언어, IL에 해당하는 단계에서는 `protected`, `internal` 등의 키워드가 리플렉션 API에 사용되지 않습니다.        
+
+- 리플렉션을 사용하며 internal 메서드를 사용하려면 _IsAssembly_ 를 사용합니다.
+- 리플렉션을 사용하며 protected internal 메서드를 사용하려면 _IsFamilyOrAssembly_ 를 사용합니다.
+
+# 특성 작
