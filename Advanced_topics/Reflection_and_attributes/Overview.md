@@ -39,4 +39,45 @@ C#에서 중간 언어, IL에 해당하는 단계에서는 `protected`, `interna
 - 리플렉션을 사용하며 internal 메서드를 사용하려면 _IsAssembly_ 를 사용합니다.
 - 리플렉션을 사용하며 protected internal 메서드를 사용하려면 _IsFamilyOrAssembly_ 를 사용합니다.
 
-# 특성 작
+# 속성 작업
+속성은 거의 모든 선언에서 사용할 수 있지만, 특정 특성은 그렇지 않은 경우도 있습니다.        
+속성은 대괄호 안에 속성 이름을 적어 선언 위에 붙입니다.      
+
+```cs
+[Serializable]
+public class SampleClass
+{
+    // Objects of this type can be serialized.
+}
+```
+`Serializable` 속성은 이 클래스가 _직렬화_ 가능함을 표시합니다.                
+_직렬화_ 란 객체를 파일, 네트워크 등으로 전송할 수 있는 형태로 변환하는 것을 의미합니다.              
+
+```cs
+[System.Runtime.InteropServices.DllImport("user32.dll")]
+extern static void SampleMethod();
+```
+`DllImportAttribute` 속성은 외부 DLL 함수를 호출할 때 사용합니다.         
+해당 속성을 통해 C#에서 C/C++ DLL 함수를 직접 호출할 수 있습니다.        
+
+```cs
+void MethodA([In][Out] ref double x) { }
+void MethodB([Out][In] ref double x) { }
+void MethodC([In, Out] ref double x) { }
+```
+한 선언에 대해 여러 속성을 붙일 수 있습니다.         
+`In`과 `Out` 속성은 해당 메서드 파라미터가 입력용인지, 출력용인지 지정하는데                     
+여러 속성을 붙임으로써 입출력 둘 다에 사용한다는 것을 명시할 수 있습니다.        
+
+```cs
+[Conditional("DEBUG"), Conditional("TEST1")]
+void TraceMethod()
+{
+    // ...
+}
+```
+일부 속성은 같은 선언에 여러 번 적용 가능합니다.        
+`Conditional` 속성은 특정 컴파일 심볼이 정의되어 있을 때만 메서드 호출이 컴파일되도록 할 수 있는데,       
+이를 여러 번 적용하여 컴파일되는 경우의 수를 늘릴 수 있습니다.          
+
+## 속성 파라미터
