@@ -81,3 +81,23 @@ void TraceMethod()
 이를 여러 번 적용하여 컴파일되는 경우의 수를 늘릴 수 있습니다.          
 
 ## 속성 파라미터
+속성에도 파라미터를 줄 수 있는데, 파라미터는 크게 _위치 기반_ 과 _이름 기반_ 으로 나뉩니다.          
+
+1. 위치 기반 파라미터
+: 속성의 생성자의 파라미터를 의미합니다.
+: 항상 첫 번째로 지정하며, 생략할 수 없는 필수 값이 여기에 들어갑니다.
+
+2. 이름 기반 파라미터
+: 속성의 public property나 field를 지정할 때 사용합니다.
+: 위치 기반 파라미터 뒤에 올 수 있으며, 순서는 자유롭게 사용 가능합니다.
+: 대부분 선택 사항이며, 생략하면 기본값을 사용합니다.
+
+```cs
+[DllImport("user32.dll")]
+[DllImport("user32.dll", SetLastError=false, ExactSpelling=false)]
+[DllImport("user32.dll", ExactSpelling=false, SetLastError=false)]
+```
+해당 코드는 동일한 DllImport 특성을 보여줍니다.       
+첫 번째는 위치 기반 파라미터이며, 이 후에 오는 파라미터는 이름 기반 파라미터입니다.        
+
+## 속성 대상
