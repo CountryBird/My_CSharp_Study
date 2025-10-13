@@ -32,3 +32,44 @@ _주문이 많은 고객에 대해 로열티 할인_ 을 제공하는 기능을 
 이러한 문제를 줄이고자 인터페이스에 멤버를 구현할 수 있는 기능을 사용할 수 있습니다.     
 
 # 기본 인터페이스 메서드를 사용하여 업그레이드
+_주문이 많으 고객에 대해 로열티 할인_ 기능을 도입해보도록 합시다.                  
+
+해당 기능을 구현하기 위해, **주문 수** (할인을 받기 위한 조건), **할인 비율** 이 필요합니다.         
+이를 인터페이스에 반영해보겠습니다.              
+```cs
+// This method belongs in the ICustomer interface (ICustomer.cs).
+// Version 1:
+public decimal ComputeLoyaltyDiscount()
+{
+    DateTime TwoYearsAgo = DateTime.Now.AddYears(-2);
+    if ((DateJoined < TwoYearsAgo) && (PreviousOrders.Count() > 10))
+    {
+        return 0.10m;
+    }
+    return 0;
+}
+```
+
+인터페이스에 구현을 추가하는 것으로 다음과 같은 확장성을 가지게 됩니다.     
+```cs
+SampleCustomer c = new SampleCustomer("customer one", new DateTime(2010, 5, 31))
+{
+    Reminders =
+    {
+        { new DateTime(2010, 08, 12), "childs's birthday" },
+        { new DateTime(2012, 11, 15), "anniversary" }
+    }
+};
+
+SampleOrder o = new SampleOrder(new DateTime(2012, 6, 1), 5m);
+c.AddOrder(o);
+
+o = new SampleOrder(new DateTime(2013, 7, 4), 25m);
+c.AddOrder(o);
+
+// Check the discount:
+ICustomer theCustomer = c;
+Console.WriteLine($"Current discount: {theCustomer.ComputeLoyaltyDiscount()}");
+```
+
+# 매개 변수화 제공
