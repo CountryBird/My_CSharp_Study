@@ -73,3 +73,39 @@ Console.WriteLine($"Current discount: {theCustomer.ComputeLoyaltyDiscount()}");
 ```
 
 # 매개 변수화 제공
+위의 방법은 구현이 다소 제한적인 부분이 있습니다.          
+새로운 시스템을 도입하여 구매 횟수, 멤버십 기간, 할인율에 대해 다른 값을 도입할 수 있도록 합시다.                
+
+```cs
+// These methods belong in the ICustomer interface (ICustomer.cs).
+// Version 2:
+public static void SetLoyaltyThresholds(
+    TimeSpan ago,
+    int minimumOrders = 10,
+    decimal percentageDiscount = 0.10m)
+{
+    length = ago;
+    orderCount = minimumOrders;
+    discountPercent = percentageDiscount;
+}
+private static TimeSpan length = new TimeSpan(365 * 2, 0,0,0); // two years
+private static int orderCount = 10;
+private static decimal discountPercent = 0.10m;
+
+public decimal ComputeLoyaltyDiscount()
+{
+    DateTime start = DateTime.Now - length;
+
+    if ((DateJoined < start) && (PreviousOrders.Count() > orderCount))
+    {
+        return discountPercent;
+    }
+    return 0;
+}
+```
+할인을 위한 실제 값들에 해당하는 부분은 `private`으로 제한하고, 메서드를 `public`으로 한정함으로써                
+보다 더 바람직한 코딩 스타일을 유지할 수 있습니다.             
+
+또한 해당 방식도 인터페이스 내 구현 기능을 사용해 확정성면에서 이득을 취할 수 있습니다.     
+
+# 기본 구현 확장
