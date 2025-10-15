@@ -109,3 +109,35 @@ public decimal ComputeLoyaltyDiscount()
 또한 해당 방식도 인터페이스 내 구현 기능을 사용해 확정성면에서 이득을 취할 수 있습니다.     
 
 # 기본 구현 확장
+지금까지의 코드는, 사용자가 기본 구현과 같은 내용이거나, 아예 관련 없는 규칙에 대한 시나리오의 구현이었습니다.              
+최종 기능으로, 기본 구현을 기반으로 빌드할 수 있는 시나리오를 사용하도록 설정합니다.       
+
+새 고객의 첫 주문에서 50% 할인을 제공하고, 기존 고객은 표준 할인을 받기 위해,                       
+이 인터페이스르 구현하는 모든 클래스가 구현에서 코드를 다시 사용할 수 있도록 해야 합니다.             
+
+```cs
+// These methods belong in the ICustomer interface (ICustomer.cs).
+public decimal ComputeLoyaltyDiscount() => DefaultLoyaltyDiscount(this);
+protected static decimal DefaultLoyaltyDiscount(ICustomer c)
+{
+    DateTime start = DateTime.Now - length;
+
+    if ((c.DateJoined < start) && (c.PreviousOrders.Count() > orderCount))
+    {
+        return discountPercent;
+    }
+    return 0;
+}
+```
+이 인터페이스를 구현하는 클래스의 구현에서, 재정의는 정적 헬퍼 메서드를 호출하여 해당 논리를 확장하고,            
+이를 통해 새 고객에 대해 할인을 제공할 수 있게 됩니다.           
+```cs
+// This method belongs in the SampleCustomer class (SampleCustomer.cs) that implements ICustomer.
+public decimal ComputeLoyaltyDiscount()
+{
+   if (PreviousOrders.Any() == false)
+        return 0.50m;
+    else
+        return ICustomer.DefaultLoyaltyDiscount(this);
+}
+```
