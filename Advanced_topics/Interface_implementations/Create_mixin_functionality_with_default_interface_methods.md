@@ -40,3 +40,79 @@ _가정 자동화_ 애플리케이션을 설계하고자 합니다.
 고급 조명 클래스는 점멸 기능을 재정의하여 자체적인 점멸 기능을 사용할 수 있습니다.          
 
 # 인터페이스 만들기
+우선, 조명의 동작만을 정의하는 인터페이스부터 정의해봅시다.            
+```cs
+public interface ILight
+{
+    void SwitchOn();
+    void SwitchOff();
+    bool IsOn();
+}
+```
+
+천장등 같은 경우는, 다음 코드와 같이 인터페이스를 구현할 수 있습니다.
+```cs
+public class OverheadLight : ILight
+{
+    private bool isOn;
+    public bool IsOn() => isOn;
+    public void SwitchOff() => isOn = false;
+    public void SwitchOn() => isOn = true;
+
+    public override string ToString() => $"The light is {(isOn ? "on" : "off")}";
+}
+```
+
+다음으로, 일정 시간 후 자동으로 꺼질 수 있는 조명의 인터페이스를 정의해 보겠습니다. 
+```cs
+public interface ITimerLight : ILight
+{
+    Task TurnOnFor(int duration);
+}
+```
+
+기본 구현을 사용해 천장등 코드에 추가할 수 있지만,               
+이 인터페이스 정의를 수정하여 확장 시 `virtual` 키워드를 통해 수정할 수 있게 하는 것이 더 좋습니다.             
+```cs
+public interface ITimerLight : ILight
+{
+    public async Task TurnOnFor(int duration)
+    {
+        Console.WriteLine("Using the default interface method for the ITimerLight.TurnOnFor.");
+        SwitchOn();
+        await Task.Delay(duration);
+        SwitchOff();
+        Console.WriteLine("Completed ITimerLight.TurnOnFor sequence.");
+    }
+}
+```
+
+이와 같은 방식에서 확장하여, 더 정교한 형식의 조명 프로토콜을 지원할 수 있습니다.           
+```cs
+public class HalogenLight : ITimerLight
+{
+    private enum HalogenLightState
+    {
+        Off,
+        On,
+        TimerModeOn
+    }
+
+    private HalogenLightState state;
+    public void SwitchOn() => state = HalogenLightState.On;
+    public void SwitchOff() => state = HalogenLightState.Off;
+    public bool IsOn() => state != HalogenLightState.Off;
+    public async Task TurnOnFor(int duration)
+    {
+        Console.WriteLine("Halogen light starting timer function.");
+        state = HalogenLightState.TimerModeOn;
+        await Task.Delay(duration);
+        state = HalogenLightState.Off;
+        Console.WriteLine("Halogen light finished custom timer function");
+    }
+
+    public override string ToString() => $"The light is {state}";
+}
+```
+해당 코드에서 `TurnOnFor` 메서드는 `HalogenLight`가 _새로_ 정의한 것이기 때문에                     
+`override`가 사용되지 않습니다.            
