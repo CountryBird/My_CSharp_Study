@@ -116,3 +116,85 @@ public class HalogenLight : ITimerLight
 ```
 해당 코드에서 `TurnOnFor` 메서드는 `HalogenLight`가 _새로_ 정의한 것이기 때문에                     
 `override`가 사용되지 않습니다.            
+
+# 조합 및 매칭 기능
+고급 기능을 도입할수록 기본 인터페이스의 장점을 더 명확히 할 수 있습니다.               
+인터페이스를 사용하면 기능을 조합하고 일치시킬 수 있습니다.          
+
+```cs
+public interface IBlinkingLight : ILight
+{
+    public async Task Blink(int duration, int repeatCount)
+    {
+        Console.WriteLine("Using the default interface method for IBlinkingLight.Blink.");
+        for (int count = 0; count < repeatCount; count++)
+        {
+            SwitchOn();
+            await Task.Delay(duration);
+            SwitchOff();
+            await Task.Delay(duration);
+        }
+        Console.WriteLine("Done with the default interface method for IBlinkingLight.Blink.");
+    }
+}
+```
+기본 구현을 사용하여 모든 조명 클래스가 점멸하는 기능을 사용할 수 있고,                
+천장등 클래스는 이러한 클래스를 모두 구현하여 기능을 모두 추가할 수 있습니다.                       
+```cs
+public class OverheadLight : ILight, ITimerLight, IBlinkingLight
+{
+    private bool isOn;
+    public bool IsOn() => isOn;
+    public void SwitchOff() => isOn = false;
+    public void SwitchOn() => isOn = true;
+
+    public override string ToString() => $"The light is {(isOn ? "on" : "off")}";
+}
+```
+
+새롭게 정의하는 `LEDLight`는 `ITimerLight`와 `IBlinkingLight` 인터페이스를 구현하여           
+타이머 기능과 점멸 기능을 사용할 수 있으며, 점멸 기능은 재정의하여 사용합니다.       
+```cs
+public class LEDLight : IBlinkingLight, ITimerLight, ILight
+{
+    private bool isOn;
+    public void SwitchOn() => isOn = true;
+    public void SwitchOff() => isOn = false;
+    public bool IsOn() => isOn;
+    public async Task Blink(int duration, int repeatCount)
+    {
+        Console.WriteLine("LED Light starting the Blink function.");
+        await Task.Delay(duration * repeatCount);
+        Console.WriteLine("LED Light has finished the Blink function.");
+    }
+
+    public override string ToString() => $"The light is {(isOn ? "on" : "off")}";
+}
+```
+
+`ExtraFancyLight` 클래스는 타이머 기능과 점멸 기능 둘 다 재정의하여 사용합니다.           
+```cs
+public class ExtraFancyLight : IBlinkingLight, ITimerLight, ILight
+{
+    private bool isOn;
+    public void SwitchOn() => isOn = true;
+    public void SwitchOff() => isOn = false;
+    public bool IsOn() => isOn;
+    public async Task Blink(int duration, int repeatCount)
+    {
+        Console.WriteLine("Extra Fancy Light starting the Blink function.");
+        await Task.Delay(duration * repeatCount);
+        Console.WriteLine("Extra Fancy Light has finished the Blink function.");
+    }
+    public async Task TurnOnFor(int duration)
+    {
+        Console.WriteLine("Extra Fancy light starting timer function.");
+        await Task.Delay(duration);
+        Console.WriteLine("Extra Fancy light finished custom timer function");
+    }
+
+    public override string ToString() => $"The light is {(isOn ? "on" : "off")}";
+}
+```
+
+# 패턴 일치를 사용하여 조명 타입 검색
