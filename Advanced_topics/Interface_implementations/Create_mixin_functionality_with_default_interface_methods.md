@@ -259,3 +259,36 @@ static async Task Main(string[] args)
 ```
 
 # 컴파일러가 최선의 구현을 결정하는 방법
+`ILight` 인터페이스에 메서드를 추가하면 새로운 복잡성이 발생합니다.                
+기본 인터페이스 메서드를 처리하는 방법은 여러 파생 인터페이스를 구현하는 구체적인 클래스에 대해 영향을 최소화할 수 있습니다.        
+
+새 메서드를 통해 원래 인터페이스를 개선하여, 사용 방법을 변경할 수 있습니다.               
+```cs
+public enum PowerStatus
+{
+    NoPower,
+    ACPower,
+    FullBattery,
+    MidBattery,
+    LowBattery
+}
+```
+
+이는 전원 상태를 표시하기 위한 열거형 형태입니다.            
+기본 구현에서는 전원이 없다고 가정합니다.               
+```cs
+public interface ILight
+{
+    void SwitchOn();
+    void SwitchOff();
+    bool IsOn();
+    public PowerStatus Power() => PowerStatus.NoPower;
+}
+```
+
+`ILight` 인터페이스 및 이에서 파생된 인터페이스에서 이러한 변경 내용은 완전히 컴파일되어 기능을 사용할 수 있습니다.       
+다만, 여러 파생 인터페이스에서 동일한 메서드를 재정의하는 것에는 주의가 필요합니다.                  
+이러한 경우 클래스가 파생된 두 인터페이스를 모두 구현할 때마다 모호한 메서드 호출을 만들 수 있습니다.          
+<img width="1040" height="960" alt="image" src="https://github.com/user-attachments/assets/240af5d7-2254-4347-a791-93fb54c16437" />
+
+일반적으로 인터페이스 정의를 작게 유지하고, 하나의 기능에 집중해야 이러한 상황을 방지할 수 있습니다.         
