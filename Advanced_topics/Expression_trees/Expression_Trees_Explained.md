@@ -14,7 +14,7 @@ var sum = 1 + 2;
 
 전체 문은 트리로 구성되며, 루트 노드에서 시작하고 트리의 각 노드로 이동하여 문을 구성하는 코드를 볼 수 있습니다.          
 - **할당이 있는 변수 선언 문** `var sum = 1 + 2;`
-  - _암시적 변수 타입 선언_ `var sum`
+  - _암시적 변수 타입 선언_ `var sum` 
     - 암시적 var 키워드 `var`
     - 변수 이름 선언 `sum`
       
@@ -29,3 +29,34 @@ var sum = 1 + 2;
 동일한 프로세스를 사용하여 훨씬 복잡한 식을 분해할 수 있습니다.         
 
 ---
+
+```cs
+var finalAnswer = this.SecretSauceFunction(
+    currentState.createInterimResult(),
+    currentState.createSecondValue(1, 2),
+    decisionServer.considerFinalOptions("hello")
+) + MoreSecretSauce('A', DateTime.Now, true);
+```
+_식 트리_ 의 구조로 보면 다음과 같습니다.       
+
+- `this.SecretSauceFunction`
+  - 트리에서의 노드 종류: MethodCallExpression
+  - this 객체의 메서드 호출
+- `currentState.createInterimResult()`
+  - 트리에서의 노드 종류: MethodCallExpression
+  - currentState 객체의 메서드 호출
+- `currentState.createSecondValue(1, 2)`
+  - 트리에서의 노드 종류: MethodCallExpression + ConstantRxpressions
+  - 인자 1, 2는 상수 노드
+- `decisionServer.considerFinalOptions("hello")`
+  - 트리에서의 노드 종류: MethodCallExpression + ConstantExpressions
+  - 문자열 상수 "hello"
+- `MoreSecretSauce('A', DateTime.Now, true)`
+  - 트리에서의 노드 종류: MethodCallExpression + ConstantExpressions
+  - 문자, 시간, 불리어 상수
+- `+`
+  - 트리에서의 노드 종류: BinaryExpression
+  - 두 메서드 호출의 결과를 더함
+- `finalAnswer = ...`
+  - 트리에서의 노드 종류: AssignmentExpression
+  - 최종적으로 변수에 대입
