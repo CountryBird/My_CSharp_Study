@@ -30,3 +30,17 @@ if (addFive is LambdaExpression lambdaExp)
 ```
 
 # 표현식 트리 만들기
+클래스에는 `System.Linq.Expression` 식을 만드는 많은 _정적 메서드_ 도 포함되어 있습니다.            
+이 메서드들은 인수를 사용해서 자식 노드를 만들어 식 노드를 만듭니다.             
+
+이를 반복하여 리프 노드로부터 식을 빌드할 수 있고,               
+아래의 코드는 Add 식 트리를 만드는 코드입니다.       
+
+```cs
+// Addition is an add expression for "1 + 2"
+var one = Expression.Constant(1, typeof(int));
+var two = Expression.Constant(2, typeof(int));
+var addition = Expression.Add(one, two);
+```
+
+# API 탐색
