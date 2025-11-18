@@ -95,3 +95,136 @@ The right side is a Parameter expression
 ```
 
 이전 코드 샘플에서 이러한 형태를 확인할 수 있습니다.             
+이를 개선하여, 더 범용적인 식 노드 `Visitor`를 구축해 보겠습니다.            
+
+이를 위해서는 재귀 알고리즘을 작성해야 하며, 모든 노드는 자식이 있을 수 있는 타입일 수 있습니다.             
+자식이 있는 노드는 그 자식을 방문하고 그 노드가 무엇인지 결정해야 합니다.            
+
+```cs
+using System.Linq.Expressions;
+
+namespace Visitors;
+// Base Visitor class:
+public abstract class Visitor
+{
+    private readonly Expression node;
+
+    protected Visitor(Expression node) => this.node = node;
+
+    public abstract void Visit(string prefix);
+
+    public ExpressionType NodeType => node.NodeType;
+    public static Visitor CreateFromExpression(Expression node) =>
+        node.NodeType switch
+        {
+            ExpressionType.Constant => new ConstantVisitor((ConstantExpression)node),
+            ExpressionType.Lambda => new LambdaVisitor((LambdaExpression)node),
+            ExpressionType.Parameter => new ParameterVisitor((ParameterExpression)node),
+            ExpressionType.Add => new BinaryVisitor((BinaryExpression)node),
+            _ => throw new NotImplementedException($"Node not processed yet: {node.NodeType}"),
+        };
+}
+
+// Lambda Visitor
+public class LambdaVisitor : Visitor
+{
+    private readonly LambdaExpression node;
+    public LambdaVisitor(LambdaExpression node) : base(node) => this.node = node;
+
+    public override void Visit(string prefix)
+    {
+        Console.WriteLine($"{prefix}This expression is a {NodeType} expression type");
+        Console.WriteLine($"{prefix}The name of the lambda is {((node.Name == null) ? "<null>" : node.Name)}");
+        Console.WriteLine($"{prefix}The return type is {node.ReturnType}");
+        Console.WriteLine($"{prefix}The expression has {node.Parameters.Count} argument(s). They are:");
+        // Visit each parameter:
+        foreach (var argumentExpression in node.Parameters)
+        {
+            var argumentVisitor = CreateFromExpression(argumentExpression);
+            argumentVisitor.Visit(prefix + "\t");
+        }
+        Console.WriteLine($"{prefix}The expression body is:");
+        // Visit the body:
+        var bodyVisitor = CreateFromExpression(node.Body);
+        bodyVisitor.Visit(prefix + "\t");
+    }
+}
+
+// Binary Expression Visitor:
+public class BinaryVisitor : Visitor
+{
+    private readonly BinaryExpression node;
+    public BinaryVisitor(BinaryExpression node) : base(node) => this.node = node;
+
+    public override void Visit(string prefix)
+    {
+        Console.WriteLine($"{prefix}This binary expression is a {NodeType} expression");
+        var left = CreateFromExpression(node.Left);
+        Console.WriteLine($"{prefix}The Left argument is:");
+        left.Visit(prefix + "\t");
+        var right = CreateFromExpression(node.Right);
+        Console.WriteLine($"{prefix}The Right argument is:");
+        right.Visit(prefix + "\t");
+    }
+}
+
+// Parameter visitor:
+public class ParameterVisitor : Visitor
+{
+    private readonly ParameterExpression node;
+    public ParameterVisitor(ParameterExpression node) : base(node)
+    {
+        this.node = node;
+    }
+
+    public override void Visit(string prefix)
+    {
+        Console.WriteLine($"{prefix}This is an {NodeType} expression type");
+        Console.WriteLine($"{prefix}Type: {node.Type}, Name: {node.Name}, ByRef: {node.IsByRef}");
+    }
+}
+
+// Constant visitor:
+public class ConstantVisitor : Visitor
+{
+    private readonly ConstantExpression node;
+    public ConstantVisitor(ConstantExpression node) : base(node) => this.node = node;
+
+    public override void Visit(string prefix)
+    {
+        Console.WriteLine($"{prefix}This is an {NodeType} expression type");
+        Console.WriteLine($"{prefix}The type of the constant value is {node.Type}");
+        Console.WriteLine($"{prefix}The value of the constant value is {node.Value}");
+    }
+}
+```
+위의 코드는 식 트리에서 나올 수 있는 모든 노드 유형을 처리하지는 않고, 일부만 처리할 수 있는 형태입니다.           
+
+다만 이 `Visitor`를 실행하면 꽤 유용한 정보를 얻을 수 있는데,         
+`Visitor.CreateFromExpression` 메서드의 기본 케이스에서 처리되지 않은               
+새 노드 타입이 발견되면 에러 콘솔에 메시지를 출력합니다.                  
+
+이를 통해 아직 처리되지 않은 표현식 트리 노드가 있을 때 사용은 못하지만,         
+에러가 발생하지 않고 이를 개선하는 방향을 제시하는 구조로 되어있음을 확인할 수 있습니다.               
+ 
+이에 따른 출력은 다음과 같습니다.          
+```console
+This expression is a/an Lambda expression type
+The name of the lambda is <null>
+The return type is System.Int32
+The expression has 2 argument(s). They are:
+        This is an Parameter expression type
+        Type: System.Int32, Name: a, ByRef: False
+        This is an Parameter expression type
+        Type: System.Int32, Name: b, ByRef: False
+The expression body is:
+        This binary expression is a Add expression
+        The Left argument is:
+                This is an Parameter expression type
+                Type: System.Int32, Name: a, ByRef: False
+        The Right argument is:
+                This is an Parameter expression type
+                Type: System.Int32, Name: b, ByRef: False
+```
+
+# 더 많은 피연산자를 포함하는 덧셈식
