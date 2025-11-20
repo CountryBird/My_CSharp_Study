@@ -228,3 +228,63 @@ The expression body is:
 ```
 
 # 더 많은 피연산자를 포함하는 덧셈식
+노드 타입을 더하기로 유지한 채로, 좀 더 복잡한 예제를 시도해 보겠습니다.                
+
+```cs
+Expression<Func<int>> sum = () => 1 + 2 + 3 + 4;
+```
+위와 같은 식이 있을 때, 모든 값이 상수이기 때문에            
+컴파일러는 미리 계산해서 10이라는 하나의 상수 식 트리로 단순화합니다.           
+
+때문에 식 트리를 보고 싶은 경우 상수 하나를 변수로 바꾸는 것이 가장 좋습니다.
+```cs
+Expression<Func<int, int>> sum = a => 1 + a + 3 + 4;
+```
+
+덧셈의 개념 상, 하나의 `+` 연산자에 왼쪽/오른쪽의 두 항을 가져야합니다.           
+따라서 이 식을 트리로 만드려면 다음과 같은 구성이 가능합니다.              
+```cs
+1 + (2 + (3 + 4))   // 오른쪽 결합 (Right associative)
+((1 + 2) + 3) + 4   // 왼쪽 결합 (Left associative)
+(1 + 2) + (3 + 4)
+1 + ((2 + 3) + 4)
+(1 + (2 + 3)) + 4
+```
+
+_실제 C# 컴파일러는 식 트리를 왼쪽 결합 형태로 생성합니다._
+```cs
+((1 + a) + 3) + 4
+```
+
+앞서 설정한 Visitor로 이 식에 대해 실행하면 다음과 같은 결과를 확인할 수 있습니다.             
+```cs
+This expression is a/an Lambda expression type
+The name of the lambda is <null>
+The return type is System.Int32
+The expression has 1 argument(s). They are:
+        This is an Parameter expression type
+        Type: System.Int32, Name: a, ByRef: False
+The expression body is:
+        This binary expression is a Add expression
+        The Left argument is:
+                This binary expression is a Add expression
+                The Left argument is:
+                        This binary expression is a Add expression
+                        The Left argument is:
+                                This is an Constant expression type
+                                The type of the constant value is System.Int32
+                                The value of the constant value is 1
+                        The Right argument is:
+                                This is an Parameter expression type
+                                Type: System.Int32, Name: a, ByRef: False
+                The Right argument is:
+                        This is an Constant expression type
+                        The type of the constant value is System.Int32
+                        The value of the constant value is 3
+        The Right argument is:
+                This is an Constant expression type
+                The type of the constant value is System.Int32
+                The value of the constant value is 4
+```
+
+# 예제 확장
