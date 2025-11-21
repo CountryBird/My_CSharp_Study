@@ -288,3 +288,159 @@ The expression body is:
 ```
 
 # 예제 확장
+해당 예제는 가장 기본적인 식 트리만 처리합니다.             
+이 섹션에서 본 코드는 상수 및 `+` 연산자만 처리합니다.        
+
+다음은 팩토리얼 식에 대한 적용 예제입니다.          
+```cs
+Expression<Func<int, int>> factorial = (n) =>
+    n == 0 ?
+    1 :
+    Enumerable.Range(1, n).Aggregate((product, factor) => product * factor);
+```
+이 코드에서는 식 트리를 빌드하는 두 가지 제한 사항을 보여주는 예시이기도 합니다.       
+
+첫째, 문자 람다는 허용되지 않습니다.        
+C#에서의 루프(`while`, `for`), 조건(`if/else`) 등의 제어 구조를 사용할 수 없습니다.         
+
+둘째, 동일한 식을 재귀적으로 호출할 수 없습니다.        
+이미 대리자가 있는 경우에는 가능하지만, 식 트리 양식으로는 호출할 수 없습니다.         
+
+이 식에서는 이러한 모든 타입의 노드가 발생합니다.      
+1. 동일 식
+2. 곱하기
+3. 조건부 삼항
+4. 메서드 호출 식
+
+`Visitor` 알고리즘을 수정하는 한 가지 방법은 계속 실행하면서 절에 도달할 때마다 노드 형식을 작성하는 것입니다.       
+몇 번의 반복 후에는 각 잠재적 노드가 표시됩니다.      
+```cs
+public static Visitor CreateFromExpression(Expression node) =>
+    node.NodeType switch
+    {
+        ExpressionType.Constant    => new ConstantVisitor((ConstantExpression)node),
+        ExpressionType.Lambda      => new LambdaVisitor((LambdaExpression)node),
+        ExpressionType.Parameter   => new ParameterVisitor((ParameterExpression)node),
+        ExpressionType.Add         => new BinaryVisitor((BinaryExpression)node),
+        ExpressionType.Equal       => new BinaryVisitor((BinaryExpression)node),
+        ExpressionType.Multiply    => new BinaryVisitor((BinaryExpression) node),
+        ExpressionType.Conditional => new ConditionalVisitor((ConditionalExpression) node),
+        ExpressionType.Call        => new MethodCallVisitor((MethodCallExpression) node),
+        _ => throw new NotImplementedException($"Node not processed yet: {node.NodeType}"),
+    };
+```
+
+`ConditionalVisitor`와 `MethodCallVisitor`가 두 노드를 처리합니다.      
+```cs
+public class ConditionalVisitor : Visitor
+{
+    private readonly ConditionalExpression node;
+    public ConditionalVisitor(ConditionalExpression node) : base(node)
+    {
+        this.node = node;
+    }
+
+    public override void Visit(string prefix)
+    {
+        Console.WriteLine($"{prefix}This expression is a {NodeType} expression");
+        var testVisitor = Visitor.CreateFromExpression(node.Test);
+        Console.WriteLine($"{prefix}The Test for this expression is:");
+        testVisitor.Visit(prefix + "\t");
+        var trueVisitor = Visitor.CreateFromExpression(node.IfTrue);
+        Console.WriteLine($"{prefix}The True clause for this expression is:");
+        trueVisitor.Visit(prefix + "\t");
+        var falseVisitor = Visitor.CreateFromExpression(node.IfFalse);
+        Console.WriteLine($"{prefix}The False clause for this expression is:");
+        falseVisitor.Visit(prefix + "\t");
+    }
+}
+
+public class MethodCallVisitor : Visitor
+{
+    private readonly MethodCallExpression node;
+    public MethodCallVisitor(MethodCallExpression node) : base(node)
+    {
+        this.node = node;
+    }
+
+    public override void Visit(string prefix)
+    {
+        Console.WriteLine($"{prefix}This expression is a {NodeType} expression");
+        if (node.Object == null)
+            Console.WriteLine($"{prefix}This is a static method call");
+        else
+        {
+            Console.WriteLine($"{prefix}The receiver (this) is:");
+            var receiverVisitor = Visitor.CreateFromExpression(node.Object);
+            receiverVisitor.Visit(prefix + "\t");
+        }
+
+        var methodInfo = node.Method;
+        Console.WriteLine($"{prefix}The method name is {methodInfo.DeclaringType}.{methodInfo.Name}");
+        // There is more here, like generic arguments, and so on.
+        Console.WriteLine($"{prefix}The Arguments are:");
+        foreach (var arg in node.Arguments)
+        {
+            var argVisitor = Visitor.CreateFromExpression(arg);
+            argVisitor.Visit(prefix + "\t");
+        }
+    }
+}
+```
+
+식 트리의 출력은 다음과 같습니다.            
+```console
+This expression is a/an Lambda expression type
+The name of the lambda is <null>
+The return type is System.Int32
+The expression has 1 argument(s). They are:
+        This is an Parameter expression type
+        Type: System.Int32, Name: n, ByRef: False
+The expression body is:
+        This expression is a Conditional expression
+        The Test for this expression is:
+                This binary expression is a Equal expression
+                The Left argument is:
+                        This is an Parameter expression type
+                        Type: System.Int32, Name: n, ByRef: False
+                The Right argument is:
+                        This is an Constant expression type
+                        The type of the constant value is System.Int32
+                        The value of the constant value is 0
+        The True clause for this expression is:
+                This is an Constant expression type
+                The type of the constant value is System.Int32
+                The value of the constant value is 1
+        The False clause for this expression is:
+                This expression is a Call expression
+                This is a static method call
+                The method name is System.Linq.Enumerable.Aggregate
+                The Arguments are:
+                        This expression is a Call expression
+                        This is a static method call
+                        The method name is System.Linq.Enumerable.Range
+                        The Arguments are:
+                                This is an Constant expression type
+                                The type of the constant value is System.Int32
+                                The value of the constant value is 1
+                                This is an Parameter expression type
+                                Type: System.Int32, Name: n, ByRef: False
+                        This expression is a Lambda expression type
+                        The name of the lambda is <null>
+                        The return type is System.Int32
+                        The expression has 2 arguments. They are:
+                                This is an Parameter expression type
+                                Type: System.Int32, Name: product, ByRef: False
+                                This is an Parameter expression type
+                                Type: System.Int32, Name: factor, ByRef: False
+                        The expression body is:
+                                This binary expression is a Multiply expression
+                                The Left argument is:
+                                        This is an Parameter expression type
+                                        Type: System.Int32, Name: product, ByRef: False
+                                The Right argument is:
+                                        This is an Parameter expression type
+                                        Type: System.Int32, Name: factor, ByRef: False
+```
+
+# 예제 라이브러리 확장
