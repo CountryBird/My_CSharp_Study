@@ -40,3 +40,43 @@ var lambda2 = Expression.Lambda(
 ```
 
 # 트리 빌드
+이전 섹션에서는 메모리에 식 트리를 빌드하는 기본 사항을 보여줍니다.            
+더 복잡한 트리는 일반적으로 더 많은 노드 유형과 트리의 더 많은 노드를 의미합니다.           
+
+인수 노드 및 메서드 호출 노드에 대한 형식을 살펴보겠습니다.          
+```cs
+Expression<Func<double, double, double>> distanceCalc =
+    (x, y) => Math.Sqrt(x * x + y * y);
+```
+
+`x`, `y`와 같은 매개 변수 식을 만듭니다.          
+```cs
+var xParameter = Expression.Parameter(typeof(double), "x");
+var yParameter = Expression.Parameter(typeof(double), "y");
+```
+
+이전에 보았던 패턴과 동일하게, 곱하기 식과 덧셈 식을 만듭니다.           
+```cs
+var xSquared = Expression.Multiply(xParameter, xParameter);
+var ySquared = Expression.Multiply(yParameter, yParameter);
+var sum = Expression.Add(xSquared, ySquared);
+```
+
+추가적으로, `Math.Sqrt`를 위한 메서드 호출 표현식을 만듭니다.
+```cs
+var sqrtMethod = typeof(Math).GetMethod("Sqrt", new[] { typeof(double) }) ?? throw new InvalidOperationException("Math.Sqrt not found!");
+var distance = Expression.Call(sqrtMethod, sum);
+```
+
+`GetMethod` 호출은 메서드를 찾을 수 없는 경우 `null`을 반환할 수 있습니다.           
+메서드 이름의 철자가 틀렸거나, 필요한 어셈블리가 로드되지 않은 경우가 대부분입니다.      
+
+마지막으로 메서드 호출을 람다 식에 넣고 식을 정의합니다. 
+```cs
+var distanceLambda = Expression.Lambda(
+    distance,
+    xParameter,
+    yParameter);
+```
+
+# 코드 심층 빌드
