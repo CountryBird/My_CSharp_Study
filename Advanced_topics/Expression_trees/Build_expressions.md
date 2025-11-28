@@ -80,3 +80,55 @@ var distanceLambda = Expression.Lambda(
 ```
 
 # 코드 심층 빌드
+이러한 방식으로 빌드할 수 잇는 항목에 제한 사항이 있는 것은 아니지만,          
+빌드하려는 식 트리가 복잡할수록 코드를 관리하고 읽기가 더 어려워집니다.           
+
+```cs
+Func<int, int> factorialFunc = (n) =>
+{
+    var res = 1;
+    while (n > 1)
+    {
+        res = res * n;
+        n--;
+    }
+    return res;
+};
+```
+앞의 코드는 식 트리가 아닌 단순 대리자 형태입니다.          
+`while` 루프를 빌드하기 위한 API는 없으며, 대신 조건부 테스트가 포함된 루프와 루프를 중단하기 위한 레이블 대상을 빌드해야 합니다.    
+
+```cs
+var nArgument = Expression.Parameter(typeof(int), "n");
+var result = Expression.Variable(typeof(int), "result");
+
+// Creating a label that represents the return value
+LabelTarget label = Expression.Label(typeof(int));
+
+var initializeResult = Expression.Assign(result, Expression.Constant(1));
+
+// This is the inner block that performs the multiplication,
+// and decrements the value of 'n'
+var block = Expression.Block(
+    Expression.Assign(result,
+        Expression.Multiply(result, nArgument)),
+    Expression.PostDecrementAssign(nArgument)
+);
+
+// Creating a method body.
+BlockExpression body = Expression.Block(
+    new[] { result },
+    initializeResult,
+    Expression.Loop(
+        Expression.IfThenElse(
+            Expression.GreaterThan(nArgument, Expression.Constant(1)),
+            block,
+            Expression.Break(label, result)
+        ),
+        label
+    )
+);
+```
+보이는 것과 같이 팩토리얼 코드는 훨씬 더 길고 복잡한 형태를 가집니다.           
+
+# 코드 구성 요소 식 매핑
