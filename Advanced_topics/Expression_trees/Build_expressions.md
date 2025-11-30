@@ -132,3 +132,57 @@ BlockExpression body = Expression.Block(
 보이는 것과 같이 팩토리얼 코드는 훨씬 더 길고 복잡한 형태를 가집니다.           
 
 # 코드 구성 요소 식 매핑
+다음 코드 예제는 API를 사용하여 람다 식 `num => num < 5`를 나타내는 식 트리를 보여줍니다.            
+```cs
+// Manually build the expression tree for
+// the lambda expression num => num < 5.
+ParameterExpression numParam = Expression.Parameter(typeof(int), "num");
+ConstantExpression five = Expression.Constant(5, typeof(int));
+BinaryExpression numLessThanFive = Expression.LessThan(numParam, five);
+Expression<Func<int, bool>> lambda1 =
+    Expression.Lambda<Func<int, bool>>(
+        numLessThanFive,
+        new ParameterExpression[] { numParam });
+```
+
+식 트리 API는 할당 및 제어 흐름 식도 지원하며, 루프/조건,try-catch문 등의 구문도 포함합니다.           
+API를 사용하면 C# 컴파일러의 람다 식에서 만들 수 있는 것보다 더 복잡한 식 트리를 만들 수 있습니다.         
+```cs
+// Creating a parameter expression.
+ParameterExpression value = Expression.Parameter(typeof(int), "value");
+
+// Creating an expression to hold a local variable.
+ParameterExpression result = Expression.Parameter(typeof(int), "result");
+
+// Creating a label to jump to from a loop.
+LabelTarget label = Expression.Label(typeof(int));
+
+// Creating a method body.
+BlockExpression block = Expression.Block(
+    // Adding a local variable.
+    new[] { result },
+    // Assigning a constant to a local variable: result = 1
+    Expression.Assign(result, Expression.Constant(1)),
+        // Adding a loop.
+        Expression.Loop(
+           // Adding a conditional block into the loop.
+           Expression.IfThenElse(
+               // Condition: value > 1
+               Expression.GreaterThan(value, Expression.Constant(1)),
+               // If true: result *= value --
+               Expression.MultiplyAssign(result,
+                   Expression.PostDecrementAssign(value)),
+               // If false, exit the loop and go to the label.
+               Expression.Break(label, result)
+           ),
+       // Label to jump to.
+       label
+    )
+);
+
+// Compile and execute an expression tree.
+int factorial = Expression.Lambda<Func<int, int>>(block, value).Compile()(5);
+
+Console.WriteLine(factorial);
+// Prints 120.
+```
