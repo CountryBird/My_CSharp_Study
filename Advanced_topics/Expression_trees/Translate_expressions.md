@@ -39,3 +39,34 @@ Console.WriteLine(answer);
 노드를 재사용하면 메모리를 크게 절약할 수 있으며, 동일한 노드는 트리 전체, 또는 여러 표현식 트리에서 반복하여 사용할 수 있습니다.       
 
 # 트래버스 수행 및 추가 작업 실행
+덧셈에서의 부분 합계 반환 코드를 작성해봅시다.          
+상수 식은 값을 가지며, 덧셈 식의 경우 트리 순회 후 왼쪽/오른쪽의 피연사자의 합이 결과로 생성됩니다.          
+
+```cs
+var one = Expression.Constant(1, typeof(int));
+var two = Expression.Constant(2, typeof(int));
+var three = Expression.Constant(3, typeof(int));
+var four = Expression.Constant(4, typeof(int));
+var addition = Expression.Add(one, two);
+var add2 = Expression.Add(three, four);
+var sum = Expression.Add(addition, add2);
+
+// Declare the delegate, so you can call it
+// from itself recursively:
+Func<Expression, int> aggregate = null!;
+// Aggregate, return constants, or the sum of the left and right operand.
+// Major simplification: Assume every binary expression is an addition.
+aggregate = (exp) =>
+    exp.NodeType == ExpressionType.Constant ?
+    (int)((ConstantExpression)exp).Value :
+    aggregate(((BinaryExpression)exp).Left) + aggregate(((BinaryExpression)exp).Right);
+
+var theSum = aggregate(sum);
+Console.WriteLine(theSum);
+```
+이 코드는, 첫 번째 검색에서 자식을 방문합니다.           
+상수 노드가 발견되면 상수의 값을 반환하며 더하기 노드를 이를 통한 합계 계산 값을 볼 수 있습니다.          
+
+다음은 추적 정보를 포함하는 코드인 `Aggreagate`의 업데이트 버전입니다.       
+```cs
+```
