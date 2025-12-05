@@ -69,4 +69,64 @@ Console.WriteLine(theSum);
 
 다음은 추적 정보를 포함하는 코드인 `Aggreagate`의 업데이트 버전입니다.       
 ```cs
+private static int Aggregate(Expression exp)
+{
+    if (exp.NodeType == ExpressionType.Constant)
+    {
+        var constantExp = (ConstantExpression)exp;
+        Console.Error.WriteLine($"Found Constant: {constantExp.Value}");
+        if (constantExp.Value is int value)
+        {
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (exp.NodeType == ExpressionType.Add)
+    {
+        var addExp = (BinaryExpression)exp;
+        Console.Error.WriteLine("Found Addition Expression");
+        Console.Error.WriteLine("Computing Left node");
+        var leftOperand = Aggregate(addExp.Left);
+        Console.Error.WriteLine($"Left is: {leftOperand}");
+        Console.Error.WriteLine("Computing Right node");
+        var rightOperand = Aggregate(addExp.Right);
+        Console.Error.WriteLine($"Right is: {rightOperand}");
+        var sum = leftOperand + rightOperand;
+        Console.Error.WriteLine($"Computed sum: {sum}");
+        return sum;
+    }
+    else throw new NotSupportedException("Haven't written this yet");
+}
 ```
+이에 따른 출력은 다음과 같습니다.      
+```console
+10
+Found Addition Expression
+Computing Left node
+Found Addition Expression
+Computing Left node
+Found Constant: 1
+Left is: 1
+Computing Right node
+Found Constant: 2
+Right is: 2
+Computed sum: 3
+Left is: 3
+Computing Right node
+Found Addition Expression
+Computing Left node
+Found Constant: 3
+Left is: 3
+Computing Right node
+Found Constant: 4
+Right is: 4
+Computed sum: 7
+Right is: 7
+Computed sum: 10
+10
+```
+
+## 수정된 복사본 만들기
