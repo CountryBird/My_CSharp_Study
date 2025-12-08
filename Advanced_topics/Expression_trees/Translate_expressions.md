@@ -130,3 +130,50 @@ Computed sum: 10
 ```
 
 ## 수정된 복사본 만들기
+```cs
+public class AndAlsoModifier : ExpressionVisitor
+{
+    public Expression Modify(Expression expression)
+    {
+        return Visit(expression);
+    }
+
+    protected override Expression VisitBinary(BinaryExpression b)
+    {
+        if (b.NodeType == ExpressionType.AndAlso)
+        {
+            Expression left = this.Visit(b.Left);
+            Expression right = this.Visit(b.Right);
+
+            // Make this binary expression an OrElse operation instead of an AndAlso operation.
+            return Expression.MakeBinary(ExpressionType.OrElse, left, right, b.IsLiftedToNull, b.Method);
+        }
+
+        return base.VisitBinary(b);
+    }
+}
+```
+이 클래스는 `ExpressionVisitor`를 상속하며 `AND` 조건을 나타내기 위해 특수화된 클래스입니다.           
+
+위 클래스의 동작을 통해 `AND` 조건은 `OR`로 변경됩니다.            
+`VisitiBinary`를 통해 변경되는데, `AND` 조건인 경우 `OR`로 변경되고,          
+그렇지 않은 경우 기본 클래스의 구현 형식을 따라갑니다.              
+
+Main 메서드에 다음 코드를 추가하여 식 트리를 만들고 수정할 수 있게 됩니다.        
+```cs
+Expression<Func<string, bool>> expr = name => name.Length > 10 && name.StartsWith("G");
+Console.WriteLine(expr);
+
+AndAlsoModifier treeModifier = new AndAlsoModifier();
+Expression modifiedExpr = treeModifier.Modify((Expression)expr);
+
+Console.WriteLine(modifiedExpr);
+
+/*  This code produces the following output:
+
+    name => ((name.Length > 10) && name.StartsWith("G"))
+    name => ((name.Length > 10) || name.StartsWith("G"))
+*/
+```
+
+# 더 알아보기
