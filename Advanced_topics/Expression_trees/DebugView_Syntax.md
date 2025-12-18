@@ -17,3 +17,30 @@ ParameterExpression numParam =  Expression.Parameter(typeof(int));
 ```
 
 # ConstantExpression
+`ConstantExpression`은 정수 값, 문자열 및 상수, `null`의 값을 나타내는 개체를 나타냅니다.        
+표준 접미사가 C# 리터럴인 숫자 형식의 경우 접미사가 값에 추가됩니다.       
+
+유형|키워드|접미사
+-----|------|-------
+System.UInt32|uint|U
+System.Int64|long|L
+System.UInt64|ulong|UL
+System.Double|double|D
+System.Single|float|F
+System.Decimal|decimal|M
+
+```cs
+int num = 10;
+ConstantExpression expr = Expression.Constant(num);
+/*
+    10
+*/
+
+double num = 10;
+ConstantExpression expr = Expression.Constant(num);
+/*
+    10D
+*/
+```
+
+# BlockExpression
