@@ -44,3 +44,20 @@ ConstantExpression expr = Expression.Constant(num);
 ```
 
 # BlockExpression
+`BlockExpression`은 블록이 마지막 식의 타입과 다를 때만 `<>` 안에 표시됩니다.          
+그렇지 않은 경우에는 표시되지 않습니다.         
+```cs
+BlockExpression block = Expression.Block(Expression.Constant("test"));
+/*
+    .Block() {
+        "test"
+    }
+*/
+
+BlockExpression block =  Expression.Block(typeof(Object), Expression.Constant("test"));
+/*
+    .Block<System.Object>() {
+        "test"
+    }
+*/
+```
