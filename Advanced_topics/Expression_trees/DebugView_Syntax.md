@@ -61,3 +61,23 @@ BlockExpression block =  Expression.Block(typeof(Object), Expression.Constant("t
     }
 */
 ```
+
+# LamdaExpression
+`LambdaExpression`은 대리자 형식과 함께 표시됩니다.              
+람다 식에 이름이 없으면 자동으로 생성된 이름 (ex) `#Lambda1`, `#Lambda2`)이 할당됩니다.         
+
+```cs
+LambdaExpression lambda =  Expression.Lambda<Func<int>>(Expression.Constant(1));
+/*
+    .Lambda #Lambda1<System.Func'1[System.Int32]>() {
+        1
+    }
+*/
+
+LambdaExpression lambda =  Expression.Lambda<Func<int>>(Expression.Constant(1), "SampleLambda", null);
+/*
+    .Lambda #SampleLambda<System.Func'1[System.Int32]>() {
+        1
+    }
+*/
+```
