@@ -81,3 +81,37 @@ LambdaExpression lambda =  Expression.Lambda<Func<int>>(Expression.Constant(1), 
     }
 */
 ```
+
+# LabelExpression
+`LabelExpression`의 값을 지정하면, 해당 값은 `LabelTarger` 앞에 표시됩니다.               
+`.Label`은 레이블의 시작을 의미하고, `.LabelTarget`은 이동할 대상의 목적지를 나타냅니다.            
+레이블에 이름이 없으면 자동으로 생성된 이름을 사용합니다. (ex) `#Label1`, `#Label2`)
+
+```cs
+LabelTarget target = Expression.Label(typeof(int), "SampleLabel");
+BlockExpression block = Expression.Block(
+    Expression.Goto(target, Expression.Constant(0)),
+    Expression.Label(target, Expression.Constant(-1))
+);
+/*
+    .Block() {
+        .Goto SampleLabel { 0 };
+        .Label
+            -1
+        .LabelTarget SampleLabel:
+    }
+*/
+
+LabelTarget target = Expression.Label();
+BlockExpression block = Expression.Block(
+    Expression.Goto(target),
+    Expression.Label(target)
+);
+/*
+    .Block() {
+        .Goto #Label1 { };
+        .Label
+        .LabelTarget #Label1:
+    }
+*/
+```
