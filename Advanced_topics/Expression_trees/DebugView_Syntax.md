@@ -115,3 +115,18 @@ BlockExpression block = Expression.Block(
     }
 */
 ```
+
+# 체크된 연산자
+체크된 연산자는 `#` 기호와 함께 표시됩니다.           
+예로, 체크된 덧셈 연산자는 `#+`로 표시됩니다. 
+```cs
+Expression expr = Expression.AddChecked( Expression.Constant(1), Expression.Constant(2));
+/*
+    1 #+ 2
+*/
+
+Expression expr = Expression.ConvertChecked( Expression.Constant(10.0), typeof(int));
+/*
+    #(System.Int32)10D
+*/
+```
